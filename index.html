@@ -4,115 +4,93 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111111">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>ARS SPRINT 4.0</title>
+<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css">
+<title>ARS SPRINT 5.1</title>
 </head>
 <body>
-<header><div class="brand">ARS <b>SPRINT</b></div><div class="sub">Evaluación profesional de velocidad y sprint · optimizado para iPad</div></header>
-<main>
-<nav class="tabs" id="tabs">
-<button class="active" data-page="evaluacion">🏃 Evaluación</button>
-<button data-page="deportistas">👥 Deportistas</button>
-<button data-page="historial">📊 Historial</button>
-<button data-page="ficha">📋 Ficha / PDF</button>
+<header class="topbar">
+  <div><div class="brand">ARS <span>SPRINT</span></div><div class="subtitle">Evaluación profesional de sprint · 5–40 m · precisión temporal y análisis local · optimizado para iPad</div></div>
+  <div class="top-actions"><button id="backupBtn" class="ghost">⬇︎ Respaldo</button><label class="ghost file-btn">⬆︎ Restaurar<input id="restoreInput" type="file" accept="application/json,.json"></label></div>
+</header>
+<nav class="tabs">
+<button class="tab active" data-tab="evaluation">🏃 Evaluación</button>
+<button class="tab" data-tab="athletes">👥 Deportistas</button>
+<button class="tab" data-tab="history">📊 Historial</button>
+<button class="tab" data-tab="profile">📄 Ficha / PDF</button>
 </nav>
+<main>
+<section id="evaluation" class="page active">
+  <article class="card">
+    <div class="section-head"><h2>1. Protocolo de sprint</h2><span class="pill">5–40 m</span></div>
+    <div class="grid three">
+      <label>Deportista<select id="athleteSelect"></select></label>
+      <label>Distancia<select id="distanceSelect"><option value="5">5 m</option><option value="10">10 m</option><option value="20">20 m</option><option value="30">30 m</option><option value="40">40 m</option><option value="custom">Personalizada</option></select></label>
+      <label>Salida<select id="startProtocol"><option value="static">Estática</option><option value="flying">Lanzada</option></select></label>
+    </div>
+    <div class="grid three hidden" id="customDistanceWrap"><label>Distancia personalizada (m)<input id="customDistance" type="number" min="1" max="200" step="0.01" placeholder="Ej. 15"></label><div></div><div></div></div>
+    <div class="grid three">
+      <label>Intentos de la serie<select id="seriesCount"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label>
+      <label>Superficie<input id="surface" placeholder="Ej. césped sintético"></label>
+      <label>Condición<input id="condition" placeholder="Ej. seco · viento leve"></label>
+    </div>
+    <p class="hint">Para comparar sesiones, conserva distancia, protocolo, superficie, cámara y condiciones lo más constantes posible.</p>
+  </article>
 
-<section class="page active" id="evaluacion">
-<div class="card">
-<h2>1. Deportista y protocolo</h2>
-<div class="grid">
-<div><label>Deportista</label><select id="athleteSelect"><option value="">— Nuevo deportista —</option></select></div>
-<div><label>Nombre</label><input id="name" placeholder="Nombre y apellido" autocomplete="off"></div>
-<div><label>Edad</label><input id="age" type="number" min="1" max="100" inputmode="numeric"></div>
-<div><label>Categoría</label><select id="category"><option>Libre</option><option>Sub-12</option><option>Sub-14</option><option>Sub-16</option><option>Sub-18</option><option>Mayores</option></select></div>
-<div><label>Prueba</label><select id="testType"><option value="10">Sprint 10 m</option><option value="20">Sprint 20 m</option><option value="30" selected>Sprint 30 m</option><option value="40">Sprint 40 m</option><option value="custom">Distancia personalizada</option></select></div>
-<div><label>Distancia (m)</label><input id="distance" type="number" value="30" min="1" step=".1" inputmode="decimal"></div>
-</div>
-<div class="row" style="margin-top:10px"><button class="dark" id="saveAthleteQuick">＋ Guardar deportista</button><button class="light" id="clearAthlete">Limpiar</button></div>
-</div>
+  <article class="card">
+    <div class="section-head"><h2>2. Serie de intentos</h2><span class="pill yellow">AUTOMATIZADA</span></div>
+    <div class="button-row"><button id="startSeries" class="primary">▶ Iniciar serie</button><button id="saveAttempt" class="dark" disabled>💾 Guardar intento</button><button id="finishSeries" class="secondary" disabled>✓ Finalizar serie</button><button id="cancelSeries" class="danger" disabled>Cancelar</button></div>
+    <div id="seriesStatus" class="status">Serie preparada. Carga un vídeo y marca inicio/final.</div>
+    <div class="table-wrap"><table><thead><tr><th>Intento</th><th>Tiempo</th><th>m/s</th><th>km/h</th><th>Calidad</th></tr></thead><tbody id="attemptBody"></tbody></table></div>
+  </article>
 
-<div class="card">
-<h2>2. Intentos automáticos</h2>
-<div class="grid">
-<div><label>Número de intentos</label><select id="seriesCount"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
-<div><label>Protocolo</label><select id="mode"><option value="serie">Serie automática</option><option value="simple">Un intento</option></select></div>
-</div>
-<div class="row" style="margin-top:10px"><button class="yellow" id="startSeries">▶ Iniciar serie</button><button class="light" id="nextAttempt" disabled>Siguiente intento</button><button class="danger" id="cancelSeries">Cancelar</button></div>
-<div id="seriesStatus" class="status">Preparado. El sistema guardará automáticamente cada intento al marcar INICIO y FINAL.</div>
-</div>
+  <article class="card">
+    <div class="section-head"><h2>3. Vídeo y control temporal</h2><span class="pill">CUADRO A CUADRO</span></div>
+    <label class="upload-zone">🎥 Seleccionar vídeo desde Fotos o Archivos<input id="videoInput" type="file" accept="video/*"></label>
+    <video id="video" controls playsinline preload="metadata"></video>
+    <div id="videoMeta" class="status">Sin vídeo cargado.</div>
+    <div class="transport">
+      <button id="back10" class="secondary">◀︎ 10</button><button id="back1" class="secondary">◀︎ 1</button><button id="playPause" class="dark">▶︎ Reproducir</button><button id="forward1" class="secondary">1 ▶︎</button><button id="forward10" class="secondary">10 ▶︎</button>
+      <label class="rate-label">Velocidad<select id="playbackRate"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+    </div>
+    <div class="grid four info-grid">
+      <div class="info-box"><span>Tiempo</span><b id="currentTime">0.000 s</b></div>
+      <div class="info-box"><span>FPS fuente</span><b id="sourceFps">No verificado</b></div>
+      <div class="info-box"><span>Frame</span><b id="frameNumber">—</b></div>
+      <div class="info-box"><span>Resolución</span><b id="resolution">—</b></div>
+    </div>
+    <div class="fps-panel">
+      <div><b>Precisión temporal</b><p>Si conoces el FPS real de la grabación, selecciónalo. Si no, la app no inventa un FPS.</p></div>
+      <label>FPS del archivo<select id="fpsInput"><option value="unknown">No sé / no verificado</option><option value="24">24 fps</option><option value="25">25 fps</option><option value="30">30 fps</option><option value="50">50 fps</option><option value="60">60 fps</option><option value="100">100 fps</option><option value="120">120 fps</option><option value="240">240 fps</option><option value="custom">Personalizado</option></select></label>
+      <label id="customFpsWrap" class="hidden">FPS personalizado<input id="customFps" type="number" min="1" max="1000" step="0.01" placeholder="Ej. 120"></label>
+    </div>
+    <p class="hint">La app usa <code>currentTime</code> y espera a que termine cada búsqueda temporal. En navegadores modernos también observa los frames presentados cuando la API está disponible; esto no equivale a conocer automáticamente el FPS original del archivo.</p>
+  </article>
 
-<div class="card">
-<h2>3. Vídeo de la prueba</h2>
-<label class="file">🎥 Seleccionar vídeo desde Fotos o Archivos<input id="videoFile" type="file" accept="video/*"></label>
-<div id="videoBox" class="video hidden"><div class="videoOverlay" id="videoOverlay">Listo para marcar</div><video id="video" controls playsinline webkit-playsinline preload="metadata"></video></div>
-<div id="videoStatus" class="status">Ningún vídeo seleccionado.</div>
-<div class="notice" style="margin-top:8px">Para máxima compatibilidad en iPad: vídeo MP4/H.264. El archivo se reproduce localmente; no se sube a internet.</div>
-</div>
+  <article class="card">
+    <div class="section-head"><h2>4. Marcaje de alta precisión</h2><span class="pill yellow">INICIO / FINAL</span></div>
+    <div class="button-row"><button id="markStart" class="primary">▶ INICIO</button><button id="markFinish" class="dark">■ FINAL</button><button id="resetMarks" class="secondary">↻ Reiniciar</button></div>
+    <div class="grid two metrics"><div class="metric"><span>Inicio</span><strong id="startReadout">—</strong></div><div class="metric"><span>Final</span><strong id="finishReadout">—</strong></div></div>
+    <div id="markQuality" class="status">Carga un vídeo para comenzar.</div>
+  </article>
 
-<div class="card">
-<h2>4. Marcaje de alta precisión</h2>
-<div class="row"><button class="yellow" id="startBtn">▶ INICIO</button><button class="dark" id="endBtn">⏹ FINAL</button><button class="light" id="resetMarks">↺ Reiniciar</button></div>
-<div class="marks">
-<div class="metric"><small>Frame / tiempo de inicio</small><strong id="startTime">—</strong></div>
-<div class="metric"><small>Frame / tiempo de final</small><strong id="endTime">—</strong></div>
-</div>
-<p class="notice">Pausa el vídeo exactamente en el primer apoyo de la salida y en el instante de cruce de la llegada. Usa los controles del reproductor para buscar el momento.</p>
-</div>
+  <article class="card">
+    <div class="section-head"><h2>5. Resultado calculado</h2><span class="pill green">AUDITABLE</span></div>
+    <div class="grid four result-grid"><div class="metric"><span>Tiempo</span><strong id="resultTime">—</strong><small>s</small></div><div class="metric"><span>Velocidad media</span><strong id="resultMs">—</strong><small>m/s</small></div><div class="metric"><span>Velocidad media</span><strong id="resultKmh">—</strong><small>km/h</small></div><div class="metric"><span>Calidad</span><strong id="quality">Pendiente</strong></div></div><div class="grid two"><div id="precisionReadout" class="status">Resolución temporal: —</div><div id="consistencyReadout" class="status">Consistencia: —</div></div>
+    <div class="qualitybar"><span id="qualityBar"></span></div><div id="validationNote" class="status">Marca inicio y final para calcular.</div>
+  </article>
 
-<div class="card">
-<h2>5. Resultado calculado</h2>
-<div class="stats">
-<div class="metric" id="mTime"><small>Tiempo</small><strong id="time">—</strong><small>s</small></div>
-<div class="metric" id="mMs"><small>Velocidad media</small><strong id="ms">—</strong><small>m/s</small></div>
-<div class="metric" id="mKmh"><small>Velocidad media</small><strong id="kmh">—</strong><small>km/h</small></div>
-<div class="metric"><small>Nivel referencial</small><strong id="level">—</strong></div>
-</div>
-<div id="qualityStatus" class="status">Completa el marcaje para calcular.</div>
-<div class="row" style="margin-top:12px"><button class="dark" id="saveResult">💾 Guardar resultado</button></div>
-</div>
-
-<div class="card">
-<h2>6. 🧠 Análisis inteligente</h2>
-<div class="ai"><div class="tag">MOTOR DE ANÁLISIS LOCAL</div><div id="ai">Analizará automáticamente velocidad, mejor marca, promedio, consistencia y tendencia. No envía datos ni vídeos a terceros.</div></div>
-</div>
+  <article class="card">
+    <div class="section-head"><h2>6. 🧠 Análisis inteligente</h2><span class="pill">ASISTIDO</span></div>
+    <div id="aiAnalysis" class="ai-box">Completa una medición para generar el análisis.</div>
+    <p class="hint">Esta versión no finge tener una IA de visión si no la tiene. El motor local interpreta mediciones, consistencia, historial y calidad de captura. La visión artificial avanzada se puede añadir después mediante un modelo/servidor seguro.</p>
+  </article>
 </section>
 
-<section class="page" id="deportistas">
-<div class="card"><h2>👥 Base de deportistas</h2>
-<div class="grid"><div><label>Nombre</label><input id="newName" placeholder="Nombre y apellido"></div><div><label>Edad</label><input id="newAge" type="number" inputmode="numeric"></div><div><label>Categoría</label><select id="newCat"><option>Libre</option><option>Sub-12</option><option>Sub-14</option><option>Sub-16</option><option>Sub-18</option><option>Mayores</option></select></div></div>
-<div class="row" style="margin-top:10px"><button class="dark" id="addAthlete">＋ Registrar deportista</button></div>
-<div id="athleteList" class="list" style="margin-top:12px"></div></div>
-</section>
-
-<section class="page" id="historial">
-<div class="card"><h2>📊 Historial de evaluaciones</h2>
-<div class="grid"><div><label>Filtrar deportista</label><select id="historyFilter"><option value="">Todos</option></select></div><div><label>Filtrar distancia</label><select id="distanceFilter"><option value="">Todas</option><option value="10">10 m</option><option value="20">20 m</option><option value="30">30 m</option><option value="40">40 m</option></select></div></div>
-<div class="row" style="margin-top:10px"><button class="yellow" id="exportHistory">📤 Exportar CSV</button><button class="danger" id="clearHistory">🗑 Borrar historial</button></div>
-<div id="historySummary" class="stats" style="margin-top:12px"></div>
-<div class="table" style="margin-top:12px"><table><thead><tr><th>Fecha</th><th>Deportista</th><th>Prueba</th><th>Intento</th><th>Tiempo</th><th>m/s</th><th>km/h</th><th>Nivel</th></tr></thead><tbody id="history"></tbody></table></div></div>
-</section>
-
-<section class="page" id="ficha">
-<div class="card noPrint"><h2>📋 Ficha individual de rendimiento</h2>
-<label>Seleccionar deportista</label><select id="profileSelect"><option value="">— Selecciona —</option></select>
-<div class="row" style="margin-top:10px"><button class="yellow" id="printProfile">🖨️ Imprimir / Guardar PDF</button><button class="blue" id="profileToEvaluation">🏃 Evaluar este deportista</button></div>
-<p class="notice">En iPad, en la ventana de impresión selecciona Compartir y luego “Guardar en Archivos” o “Guardar PDF”, según tu versión de iPadOS.</p></div>
-<div class="card">
-<div class="printOnly" style="text-align:center"><h1>ARS SPRINT</h1><p>Ficha individual de rendimiento deportivo</p></div>
-<div class="profile"><div class="profileAvatar" id="profileInitials">AR</div><div><h2 id="profileName">Selecciona un deportista</h2><div id="profileInfo" class="notice">—</div></div></div>
-<div class="stats">
-<div class="metric"><small>Evaluaciones</small><strong id="pCount">0</strong></div><div class="metric"><small>Mejor tiempo</small><strong id="pBest">—</strong></div><div class="metric"><small>Mayor velocidad</small><strong id="pSpeed">—</strong></div><div class="metric"><small>Promedio</small><strong id="pAvg">—</strong></div>
-</div>
-<div class="card" style="margin-top:12px"><h3>Resumen por distancia</h3><div id="distanceSummary" class="grid"></div></div>
-<div class="card" style="margin-top:12px"><h3>Historial del deportista</h3><div class="table"><table><thead><tr><th>Fecha</th><th>Dist.</th><th>Intento</th><th>Tiempo</th><th>m/s</th><th>km/h</th><th>Nivel</th></tr></thead><tbody id="profileHistory"></tbody></table></div></div>
-<div class="ai" id="profileAI">Selecciona un deportista.</div>
-<div class="printOnly" style="margin-top:25px;border-top:1px solid #ddd;padding-top:12px;font-size:11px;color:#666">ARS SPRINT 4.0 · Informe generado con los registros almacenados localmente en el dispositivo.</div>
-</div>
-</section>
-<footer>ARS SPRINT 4.0 · Datos y vídeos procesados localmente en el dispositivo.</footer>
+<section id="athletes" class="page"><article class="card"><div class="section-head"><h2>Deportistas</h2><button id="newAthlete" class="primary">＋ Nuevo deportista</button></div><div id="athleteList" class="athlete-list"></div></article></section>
+<section id="history" class="page"><article class="card"><div class="section-head"><h2>Historial completo</h2><div class="button-row compact"><button id="exportCsv" class="secondary">CSV</button><button id="clearHistory" class="danger">Borrar historial</button></div></div><div class="grid two filters"><input id="historySearch" placeholder="Buscar deportista…"><select id="historyDistance"><option value="">Todas las distancias</option><option value="5">5 m</option><option value="10">10 m</option><option value="20">20 m</option><option value="30">30 m</option><option value="40">40 m</option></select></div><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Deportista</th><th>Prueba</th><th>Intento</th><th>Tiempo</th><th>m/s</th><th>Calidad</th></tr></thead><tbody id="historyBody"></tbody></table></div></article></section>
+<section id="profile" class="page"><article class="card print-area"><div class="section-head"><h2>Ficha profesional</h2><button id="printPdf" class="primary">🖨️ Imprimir / PDF</button></div><select id="profileSelect"></select><div id="profileContent" class="profile"></div></article></section>
 </main>
-
-<script src="app.js" defer></script>
-</body>
-</html>
+<dialog id="athleteDialog"><form id="athleteForm" class="dialog-form"><h2>Nuevo deportista</h2><label>Nombre completo<input id="athleteName" required></label><div class="grid two"><label>Fecha de nacimiento<input id="athleteDob" type="date"></label><label>Sexo<select id="athleteSex"><option>Masculino</option><option>Femenino</option><option>Otro</option></select></label></div><div class="grid two"><label>Deporte<input id="athleteSport" placeholder="Fútbol"></label><label>Categoría<input id="athleteCategory" placeholder="Sub-15"></label></div><label>Observaciones<textarea id="athleteNotes" rows="3"></textarea></label><div class="button-row"><button type="button" id="cancelAthlete" class="secondary">Cancelar</button><button class="primary">Guardar</button></div></form></dialog>
+<script src="app.js"></script>
+</body></html>

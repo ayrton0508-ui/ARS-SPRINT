@@ -1,0 +1,13 @@
+REFERENCIAS TÉCNICAS
+
+- MDN: HTMLVideoElement.requestVideoFrameCallback(): acceso eficiente a frames presentados y metadata como mediaTime y presentedFrames.
+- MDN: HTMLMediaElement.currentTime: posición temporal de reproducción y búsqueda mediante currentTime.
+- WebKit: Safari 17.2 y WebCodecs, con acceso de bajo nivel a frames de vídeo para formatos compatibles.
+
+Criterio de diseño:
+1) separar medición, cálculo e interpretación;
+2) no declarar FPS desconocido como si fuera 30 fps;
+3) mostrar resolución nominal e incertidumbre cuando el FPS es declarado;
+4) guardar protocolo, distancia y condiciones;
+5) usar la IA como asistencia, no como fuente de números inventados;
+6) validar contra fotocélulas u otro criterio de referencia antes de usar el sistema para investigación.

@@ -1,199 +1,39 @@
-"use strict";
-(function(){
-const $=id=>document.getElementById(id);
-const KEYA="arsSprintAthletes30",KEYH="arsSprintHistory30"; // conserva los datos de ARS SPRINT 3.0
-let objectUrl=null,start=null,end=null,current=null,series=[],seriesActive=false,selectedVideoName="";
-const read=k=>{try{return JSON.parse(localStorage.getItem(k)||"[]")}catch(e){return[]}};
-const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-const uid=()=>{try{return crypto.randomUUID()}catch(e){return Date.now().toString(36)+Math.random().toString(36).slice(2)}};
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-const fmt=n=>Number.isFinite(n)?n.toFixed(3)+" s":"—";
-const num=(x,d=0)=>{const n=Number(x);return Number.isFinite(n)?n:d};
-
-function navigate(id){
- document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
- document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
- if(id==="deportistas")renderAthletes();
- if(id==="historial")renderHistory(true);
- if(id==="ficha"){renderProfileSelect();renderProfile();}
- window.scrollTo({top:0,behavior:"smooth"});
-}
-document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.page)));
-
-function renderAthletes(){
- const a=read(KEYA),h=read(KEYH),old=$("athleteSelect").value;
- $("athleteSelect").innerHTML='<option value="">— Nuevo deportista —</option>'+a.map(x=>`<option value="${x.id}">${esc(x.name)} · ${esc(x.category)}</option>`).join("");
- if(a.some(x=>x.id===old))$("athleteSelect").value=old;
- $("athleteList").innerHTML=a.length?a.map(x=>{
-  const n=h.filter(r=>r.athleteId===x.id).length,ini=x.name.split(/\s+/).slice(0,2).map(s=>s[0]).join("").toUpperCase();
-  return `<div class="person"><div class="avatar">${esc(ini)}</div><div class="grow"><strong>${esc(x.name)}</strong><small>${esc(x.category)} · ${x.age||"Edad no indicada"} · ${n} evaluaciones</small></div><button class="light" data-use="${x.id}">Usar</button><button class="danger" data-remove="${x.id}">Eliminar</button></div>`;
- }).join(""):'<div class="empty">Todavía no hay deportistas registrados.</div>';
- document.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{navigate("evaluacion");$("athleteSelect").value=b.dataset.use;fillAthlete()});
- document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{if(confirm("¿Eliminar este deportista? Sus evaluaciones históricas se conservarán.")){write(KEYA,a.filter(x=>x.id!==b.dataset.remove));renderAthletes();renderHistory(true);renderProfileSelect();}});
-}
-function fillAthlete(){
- const id=$("athleteSelect").value,a=read(KEYA).find(x=>x.id===id);
- if(a){$("name").value=a.name;$("age").value=a.age||"";$("category").value=a.category||"Libre"}
-}
-$("athleteSelect").onchange=fillAthlete;
-
-function levelFor(ms){
- if(ms>=8)return"Excelente";
- if(ms>=7)return"Muy bueno";
- if(ms>=6)return"Bueno";
- if(ms>=5)return"Aceptable";
- return"En desarrollo";
-}
-function qualityFor(time,d){
- if(!time||!d)return["—",""];
- if(time<0.15)return["Revisar marcaje","bad"];
- if(time>20)return["Revisar protocolo","warn"];
- return["Marcaje válido","good"];
-}
-function analyzeCurrent(){
- const d=num($("distance").value), s=num(start,NaN), e=num(end,NaN);
- if(!Number.isFinite(s)||!Number.isFinite(e)||e<=s||!d){
-  current=null;$("time").textContent="—";$("ms").textContent="—";$("kmh").textContent="—";$("level").textContent="—";
-  $("qualityStatus").textContent="Completa INICIO y FINAL para calcular.";
-  ["mTime","mMs","mKmh"].forEach(id=>$(id).className="metric");
-  $("ai").textContent="Marca los dos momentos del vídeo para generar el análisis.";
-  return;
- }
- const time=e-s,ms=d/time,kmh=ms*3.6,level=levelFor(ms);
- $("time").textContent=time.toFixed(3);$("ms").textContent=ms.toFixed(2);$("kmh").textContent=kmh.toFixed(2);$("level").textContent=level;
- const q=qualityFor(time,d);$("qualityStatus").textContent=q[0];$("qualityStatus").className="status";
- $("mTime").className="metric "+(q[1]||"");$("mMs").className="metric "+(ms>=7?"good":ms>=5?"warn":"bad");$("mKmh").className="metric "+(ms>=7?"good":ms>=5?"warn":"bad");
- const h=read(KEYH),name=$("name").value.trim()||"Sin nombre",mine=h.filter(r=>String(r.name).toLowerCase()===name.toLowerCase()&&Number(r.distance)===d);
- const prior=mine.length?Math.min(...mine.map(r=>num(r.time,999))):null;
- const improvement=prior?((prior-time)/prior*100):null;
- let advice=ms>=8?"Velocidad media alta. Prioriza mantener la calidad técnica y una recuperación suficiente entre intentos.":ms>=7?"Buen nivel de velocidad. Trabaja aceleración, rigidez del tobillo y aplicación de fuerza horizontal.":ms>=6?"Nivel intermedio. Conviene reforzar aceleración y técnica de carrera, especialmente los primeros metros.":"Hay margen de mejora. Revisa salida, inclinación del tronco, frecuencia de zancada y capacidad de aplicar fuerza.";
- let trend=prior?(improvement>0?` Es aproximadamente <b>${improvement.toFixed(1)}%</b> más rápido que su mejor marca previa de ${prior.toFixed(3)} s.`:improvement<0?` Está aproximadamente <b>${Math.abs(improvement).toFixed(1)}%</b> por encima de su mejor marca previa de ${prior.toFixed(3)} s.`:" Iguala su mejor marca previa."):" Todavía no existe un registro previo comparable.";
- $("ai").innerHTML=`<b>ANÁLISIS AUTOMÁTICO</b><br>${advice}${trend}<br><br><span style="color:#aaa">El motor local usa reglas de rendimiento y comparación histórica; funciona sin internet y sin enviar datos ni vídeos. Para una IA generativa conectada se requiere un backend seguro.</span>`;
- current={id:uid(),date:new Date().toLocaleString("es-PE"),name,age:$("age").value,category:$("category").value,distance:d,attempt:series.length+1,time,ms,kmh,level,athleteId:$("athleteSelect").value||null,video:selectedVideoName};
-}
-$("distance").oninput=analyzeCurrent;
-$("testType").onchange=()=>{if($("testType").value!=="custom"){$("distance").value=$("testType").value;analyzeCurrent()}};
-
-$("videoFile").onchange=function(){
- const f=this.files&&this.files[0];if(!f)return;
- if(objectUrl)URL.revokeObjectURL(objectUrl);
- objectUrl=URL.createObjectURL(f);selectedVideoName=f.name;$("video").src=objectUrl;$("video").load();$("videoBox").classList.remove("hidden");
- $("videoStatus").textContent="⏳ Cargando vídeo: "+f.name;$("videoOverlay").textContent="Cargando…";
- start=end=null;$("startTime").textContent="—";$("endTime").textContent="—";analyzeCurrent();
-};
-$("video").onloadedmetadata=()=>{
- const d=$("video").duration;
- $("videoStatus").textContent="✓ Vídeo listo · "+selectedVideoName+" · "+(Number.isFinite(d)?d.toFixed(2)+" s":"duración no disponible");
- $("videoOverlay").textContent="Vídeo listo · pausa para marcar";
-};
-$("video").onloadeddata=()=>{$("videoStatus").textContent="✓ Vídeo reproducible · pausa en el instante exacto para marcar."};
-$("video").onerror=()=>{
- $("videoStatus").textContent="✕ Este vídeo no puede ser reproducido por el navegador. En iPad usa preferentemente MP4 con vídeo H.264 y audio AAC. El sistema no modifica el archivo original.";
- $("videoOverlay").textContent="Formato no compatible";
-};
-$("video").ontimeupdate=()=>{if(start!==null&&end===null)$("videoOverlay").textContent="Marcaje de inicio: "+start.toFixed(3)+" s"};
-
-$("startBtn").onclick=()=>{
- if(!$("video").src){alert("Selecciona primero un vídeo.");return}
- start=$("video").currentTime;end=null;$("startTime").textContent=fmt(start);$("endTime").textContent="—";$("videoOverlay").textContent="INICIO · "+start.toFixed(3)+" s";analyzeCurrent();
-};
-$("endBtn").onclick=()=>{
- if(!$("video").src){alert("Selecciona primero un vídeo.");return}
- if(start===null){alert("Primero marca INICIO.");return}
- end=$("video").currentTime;if(end<=start){alert("FINAL debe ser posterior a INICIO.");return}
- $("endTime").textContent=fmt(end);$("videoOverlay").textContent="FINAL · "+end.toFixed(3)+" s";analyzeCurrent();
- if(seriesActive&&current){
-  const r={...current,attempt:series.length+1};series.push(r);
-  if(series.length<parseInt($("seriesCount").value)){
-   $("seriesStatus").textContent=`✓ Intento ${series.length} registrado. Pulsa “Siguiente intento” para continuar.`;$("nextAttempt").disabled=false;
-  }else{
-   seriesActive=false;$("nextAttempt").disabled=true;
-   const best=Math.min(...series.map(x=>x.time)),avg=series.reduce((s,x)=>s+x.time,0)/series.length;
-   $("seriesStatus").textContent=`✓ Serie completada · ${series.length} intentos · mejor ${best.toFixed(3)} s · promedio ${avg.toFixed(3)} s.`;
-   $("ai").innerHTML=`<b>SERIE COMPLETADA</b><br>Mejor marca: <b>${best.toFixed(3)} s</b> · Promedio: <b>${avg.toFixed(3)} s</b> · Intentos: <b>${series.length}</b>.<br><br>El sistema recomienda conservar la mejor marca y observar la diferencia entre intentos para valorar consistencia.`;
-  }
- }
-};
-$("resetMarks").onclick=()=>{start=end=null;$("startTime").textContent="—";$("endTime").textContent="—";$("videoOverlay").textContent="Listo para marcar";analyzeCurrent()};
-$("startSeries").onclick=()=>{
- if(!$("name").value.trim()){alert("Selecciona o escribe un deportista.");return}
- series=[];seriesActive=$("mode").value==="serie";start=end=null;$("startTime").textContent="—";$("endTime").textContent="—";$("nextAttempt").disabled=true;
- $("seriesStatus").textContent=`Serie iniciada · objetivo: ${$("seriesCount").value} intento(s).`;analyzeCurrent();
-};
-$("nextAttempt").onclick=()=>{start=end=null;current=null;$("startTime").textContent="—";$("endTime").textContent="—";$("nextAttempt").disabled=true;$("seriesStatus").textContent=`Preparado para intento ${series.length+1} de ${$("seriesCount").value}.`;analyzeCurrent()};
-$("cancelSeries").onclick=()=>{series=[];seriesActive=false;$("nextAttempt").disabled=true;$("seriesStatus").textContent="Serie cancelada."};
-
-function saveAthleteData(name,age,cat){
- let a=read(KEYA),found=a.find(x=>x.name.toLowerCase()===name.toLowerCase());
- if(found){found.age=age;found.category=cat}else{a.push({id:uid(),name,age,category:cat})}
- write(KEYA,a);renderAthletes();renderProfileSelect();
-}
-$("saveAthleteQuick").onclick=()=>{
- let n=$("name").value.trim();if(!n){alert("Escribe el nombre.");return}
- saveAthleteData(n,$("age").value,$("category").value);let a=read(KEYA).find(x=>x.name.toLowerCase()===n.toLowerCase());$("athleteSelect").value=a.id;alert("✓ Deportista guardado.");
-};
-$("clearAthlete").onclick=()=>{$("athleteSelect").value="";$("name").value="";$("age").value="";$("category").value="Libre"};
-$("addAthlete").onclick=()=>{let n=$("newName").value.trim();if(!n){alert("Escribe el nombre.");return}saveAthleteData(n,$("newAge").value,$("newCat").value);$("newName").value="";$("newAge").value="";renderAthletes()};
-
-function saveHistoryRows(rows){
- if(!rows.length){alert("No hay resultados completos para guardar.");return}
- const h=read(KEYH);rows.forEach(r=>h.push({...r,id:r.id||uid()}));write(KEYH,h);
- alert(`✓ ${rows.length} resultado(s) guardado(s).`);series=[];current=null;renderHistory(true);renderAthletes();renderProfileSelect();renderProfile();
-}
-$("saveResult").onclick=()=>{
- if(series.length){saveHistoryRows(series);return}
- if(!current){alert("Completa INICIO y FINAL.");return}
- saveHistoryRows([current]);
-};
-
-function renderHistory(reset=false){
- const h=read(KEYH),af=read(KEYA),oldA=$("historyFilter").value,oldD=$("distanceFilter").value;
- $("historyFilter").innerHTML='<option value="">Todos</option>'+af.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join("");
- if(!reset&&af.some(a=>a.id===oldA))$("historyFilter").value=oldA;
- else if(af.some(a=>a.id===oldA))$("historyFilter").value=oldA;
- $("distanceFilter").value=oldD;
- const aid=$("historyFilter").value,d=$("distanceFilter").value;
- const rows=h.filter(r=>(!aid||r.athleteId===aid)&&(!d||String(r.distance)===d)).slice().reverse();
- $("history").innerHTML=rows.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.name)}</td><td>Sprint ${r.distance} m</td><td>${r.attempt||1}</td><td>${num(r.time).toFixed(3)} s</td><td>${num(r.ms).toFixed(2)}</td><td>${num(r.kmh).toFixed(2)}</td><td>${esc(r.level)}</td></tr>`).join("")||'<tr><td colspan="8">No hay registros para este filtro.</td></tr>';
- const times=rows.map(r=>num(r.time,NaN)).filter(Number.isFinite),speeds=rows.map(r=>num(r.ms,NaN)).filter(Number.isFinite);
- $("historySummary").innerHTML=`<div class="metric"><small>Registros</small><strong>${rows.length}</strong></div><div class="metric"><small>Mejor tiempo</small><strong>${times.length?Math.min(...times).toFixed(3)+" s":"—"}</strong></div><div class="metric"><small>Mayor velocidad</small><strong>${speeds.length?Math.max(...speeds).toFixed(2)+" m/s":"—"}</strong></div><div class="metric"><small>Promedio</small><strong>${times.length?(times.reduce((a,b)=>a+b,0)/times.length).toFixed(3)+" s":"—"}</strong></div>`;
-}
-$("historyFilter").onchange=()=>renderHistory(false);$("distanceFilter").onchange=()=>renderHistory(false);
-$("clearHistory").onclick=()=>{if(confirm("¿Borrar TODO el historial? Esta acción no se puede deshacer.")){localStorage.removeItem(KEYH);renderHistory(true);renderAthletes();renderProfile()}};
-$("exportHistory").onclick=()=>{
- const h=read(KEYH);if(!h.length){alert("No hay datos.");return}
- const rows=[["Fecha","Deportista","Edad","Categoría","Distancia_m","Intento","Tiempo_s","m_s","km_h","Nivel","Video"],...h.map(r=>[r.date,r.name,r.age,r.category,r.distance,r.attempt||1,num(r.time).toFixed(3),num(r.ms).toFixed(2),num(r.kmh).toFixed(2),r.level,r.video||""])];
- const csv="\ufeff"+rows.map(row=>row.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\n");
- const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="ARS_SPRINT_historial.csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-};
-
-function renderProfileSelect(){
- const a=read(KEYA),old=$("profileSelect").value;
- $("profileSelect").innerHTML='<option value="">— Selecciona —</option>'+a.map(x=>`<option value="${x.id}">${esc(x.name)} · ${esc(x.category)}</option>`).join("");
- if(a.some(x=>x.id===old))$("profileSelect").value=old;
-}
-function renderProfile(){
- const id=$("profileSelect").value;
- if(!id){$("profileName").textContent="Selecciona un deportista";$("profileInfo").textContent="—";$("profileInitials").textContent="AR";$("pCount").textContent="0";$("pBest").textContent="—";$("pSpeed").textContent="—";$("pAvg").textContent="—";$("profileHistory").innerHTML="";$("distanceSummary").innerHTML='<div class="empty">Selecciona un deportista.</div>';$("profileAI").textContent="Selecciona un deportista.";return}
- const a=read(KEYA).find(x=>x.id===id),h=read(KEYH).filter(r=>r.athleteId===id);if(!a)return;
- $("profileName").textContent=a.name;$("profileInfo").textContent=(a.age?a.age+" años":"Edad no indicada")+" · "+a.category;
- $("profileInitials").textContent=a.name.split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase();$("pCount").textContent=h.length;
- if(!h.length){$("pBest").textContent="—";$("pSpeed").textContent="—";$("pAvg").textContent="—";$("profileHistory").innerHTML='<tr><td colspan="7">Sin evaluaciones.</td></tr>';$("distanceSummary").innerHTML='<div class="empty">Todavía no hay resultados guardados.</div>';$("profileAI").textContent="No hay suficientes datos para analizar.";return}
- const best=Math.min(...h.map(x=>num(x.time,999))),speed=Math.max(...h.map(x=>num(x.ms,0))),avg=h.reduce((s,x)=>s+num(x.time,0),0)/h.length;
- $("pBest").textContent=best.toFixed(3)+" s";$("pSpeed").textContent=speed.toFixed(2)+" m/s";$("pAvg").textContent=avg.toFixed(3)+" s";
- const groups={};h.forEach(x=>{const k=String(x.distance);(groups[k]??=[]).push(x)});
- $("distanceSummary").innerHTML=Object.entries(groups).sort((a,b)=>Number(a[0])-Number(b[0])).map(([d,arr])=>{
-  const bt=Math.min(...arr.map(x=>num(x.time,999))),bs=Math.max(...arr.map(x=>num(x.ms,0)));
-  return `<div class="metric"><div class="kpiTitle">SPRINT ${esc(d)} m</div><strong>${bt.toFixed(3)} s</strong><small>Mejor · ${bs.toFixed(2)} m/s</small></div>`;
- }).join("");
- $("profileHistory").innerHTML=h.slice().reverse().map(x=>`<tr><td>${esc(x.date)}</td><td>${x.distance} m</td><td>${x.attempt||1}</td><td>${num(x.time).toFixed(3)} s</td><td>${num(x.ms).toFixed(2)}</td><td>${num(x.kmh).toFixed(2)}</td><td>${esc(x.level)}</td></tr>`).join("");
- const ordered=h.slice().sort((a,b)=>new Date(a.date)-new Date(b.date)),first=ordered[0],last=ordered[ordered.length-1],change=first&&last&&num(first.time)?((num(first.time)-num(last.time))/num(first.time)*100):0;
- const consistency=h.length>1?Math.max(...h.map(x=>num(x.time)))-Math.min(...h.map(x=>num(x.time))):0;
- $("profileAI").innerHTML=`<b>ANÁLISIS DEL DEPORTISTA</b><br>${change>0?`La última referencia disponible muestra una mejora aproximada de <b>${change.toFixed(1)}%</b> frente al primer registro.`:change<0?`La última referencia está aproximadamente <b>${Math.abs(change).toFixed(1)}%</b> por encima del primer registro; conviene revisar condiciones y protocolo.`:"Aún no existe suficiente evolución para establecer una tendencia."}<br><br>Mejor tiempo: <b>${best.toFixed(3)} s</b>. Mayor velocidad: <b>${speed.toFixed(2)} m/s</b>. Promedio: <b>${avg.toFixed(3)} s</b>. Rango entre mejores y peores tiempos: <b>${consistency.toFixed(3)} s</b>.`;
-}
-$("profileSelect").onchange=renderProfile;
-$("profileToEvaluation").onclick=()=>{const id=$("profileSelect").value;if(!id){alert("Selecciona un deportista.");return}navigate("evaluacion");$("athleteSelect").value=id;fillAthlete()};
-$("printProfile").onclick=()=>{if(!$("profileSelect").value){alert("Selecciona un deportista.");return}document.getElementById("ficha").classList.add("print-page");window.print();setTimeout(()=>document.getElementById("ficha").classList.remove("print-page"),800)};
-
-renderAthletes();renderHistory(true);renderProfileSelect();renderProfile();
-})();
+const DB_KEY='ARS_SPRINT_5_DB_V52';
+const state={db:{version:'5.2',athletes:[],history:[]},videoUrl:null,videoFile:null,fps:null,start:null,finish:null,series:{active:false,total:0,index:0,attempts:[]},lastFrameMeta:null,rvfcId:null};
+const $=id=>document.getElementById(id); const uid=()=>crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`;
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function distance(){return $('distanceSelect').value==='custom'?Number($('customDistance').value):Number($('distanceSelect').value)}
+function athleteName(id){return state.db.athletes.find(a=>a.id===id)?.name||'Sin deportista'}
+function safeLoad(){try{const raw=localStorage.getItem(DB_KEY);if(raw){const d=JSON.parse(raw);state.db={version:'5.2',athletes:Array.isArray(d.athletes)?d.athletes:[],history:Array.isArray(d.history)?d.history:[]}}}catch(e){console.warn(e)}}
+function safeSave(){try{localStorage.setItem(DB_KEY,JSON.stringify(state.db));return true}catch(e){alert('No se pudo guardar en este navegador. Usa Respaldo para no perder datos.');return false}}
+function renderAll(){renderAthletes();renderSelects();renderHistory();renderProfile();renderAttempts();updateResult();updateMarks()}
+function renderSelects(){const currentA=$('athleteSelect')?.value,currentP=$('profileSelect')?.value;const opts=state.db.athletes.length?state.db.athletes.map(a=>`<option value="${a.id}">${esc(a.name)}${a.category?' · '+esc(a.category):''}</option>`).join(''):`<option value="">Primero crea un deportista</option>`;$('athleteSelect').innerHTML=opts;$('profileSelect').innerHTML=opts;if(currentA&&state.db.athletes.some(a=>a.id===currentA))$('athleteSelect').value=currentA;if(currentP&&state.db.athletes.some(a=>a.id===currentP))$('profileSelect').value=currentP}
+function renderAthletes(){$('athleteList').innerHTML=state.db.athletes.length?state.db.athletes.map(a=>{const n=state.db.history.filter(h=>h.athleteId===a.id).length;return `<div class="athlete-card"><h3>${esc(a.name)}</h3><p>${esc(a.sport||'')} ${a.category?'· '+esc(a.category):''}</p><p>${esc(a.sex||'')} ${a.dob?'· '+esc(a.dob):''}</p><p>${n} registros</p><button class="secondary" onclick="useAthlete('${a.id}')">Usar en evaluación</button></div>`}).join(''):`<div class="status">No hay deportistas todavía.</div>`}
+window.useAthlete=id=>{$('athleteSelect').value=id;document.querySelector('[data-tab="evaluation"]').click()}
+function renderHistory(){const q=($('historySearch').value||'').toLowerCase(),d=$('historyDistance').value;const rows=state.db.history.filter(h=>(!q||athleteName(h.athleteId).toLowerCase().includes(q))&&(!d||String(h.distance)===d)).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).map(h=>`<tr><td>${new Date(h.createdAt).toLocaleString('es-PE')}</td><td>${esc(athleteName(h.athleteId))}</td><td>${h.distance} m</td><td>${h.attempt}</td><td><b>${h.time.toFixed(3)} s</b></td><td>${h.ms.toFixed(2)}</td><td>${esc(h.quality)}</td></tr>`).join('');$('historyBody').innerHTML=rows||'<tr><td colspan="7">Sin registros.</td></tr>'}
+function renderAttempts(){const rows=state.series.attempts.map(a=>`<tr><td>${a.attempt}</td><td>${a.time.toFixed(3)} s</td><td>${a.ms.toFixed(2)}</td><td>${a.kmh.toFixed(2)}</td><td>${esc(a.quality)}</td></tr>`).join('');$('attemptBody').innerHTML=rows||'<tr><td colspan="5">Aún no hay intentos guardados.</td></tr>'}
+function renderProfile(){const id=$('profileSelect').value,a=state.db.athletes.find(x=>x.id===id);if(!a){$('profileContent').innerHTML='<div class="status">Crea un deportista para generar su ficha.</div>';return}const rows=state.db.history.filter(h=>h.athleteId===id).sort((x,y)=>new Date(x.createdAt)-new Date(y.createdAt));const best=[5,10,20,30,40].map(d=>{const r=rows.filter(h=>h.distance===d).sort((x,y)=>x.time-y.time)[0];return `<div class="stat-box"><span>${d} m</span><b>${r?r.time.toFixed(3)+' s':'—'}</b><small>${r?r.ms.toFixed(2)+' m/s':''}</small></div>`}).join('');$('profileContent').innerHTML=`<div class="profile-header"><div><h1>${esc(a.name)}</h1><p>${esc(a.sport||'')} · ${esc(a.category||'')} · ${esc(a.sex||'')}</p></div><div><b>ARS SPRINT 5.2</b><br><small>${new Date().toLocaleDateString('es-PE')}</small></div></div><div class="stat-grid">${best}</div><h3>Historial de sprint</h3><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Dist.</th><th>Intento</th><th>Tiempo</th><th>m/s</th><th>Calidad</th></tr></thead><tbody>${rows.map(h=>`<tr><td>${new Date(h.createdAt).toLocaleDateString('es-PE')}</td><td>${h.distance} m</td><td>${h.attempt}</td><td>${h.time.toFixed(3)} s</td><td>${h.ms.toFixed(2)}</td><td>${h.quality}</td></tr>`).join('')||'<tr><td colspan="6">Sin evaluaciones.</td></tr>'}</tbody></table></div><h3>Observaciones</h3><p>${esc(a.notes||'Sin observaciones.')}</p>`}
+function temporalResolution(){return state.fps?1/state.fps:null}
+function quality(){if(!state.start||!state.finish)return {label:'Pendiente',score:0};const dt=state.finish.time-state.start.time;if(dt<=0)return {label:'Inválida',score:0};if(state.fps&&state.videoFile)return {label:'Verificada por FPS declarado',score:82};return {label:'No verificada',score:58}}
+function updateTime(){const v=$('video'),t=v.currentTime||0;$('currentTime').textContent=t.toFixed(3)+' s';const fps=state.fps;$('frameNumber').textContent=fps?Math.round(t*fps):'—';if(state.lastFrameMeta?.mediaTime!=null&&Math.abs(state.lastFrameMeta.mediaTime-t)<0.02)$('currentTime').title=`PTS del frame presentado: ${state.lastFrameMeta.mediaTime.toFixed(6)} s`;updateResult()}
+function updateMarks(){const f=state.fps;const fmt=x=>x?`${x.time.toFixed(3)} s${f?` · frame ~${x.frame}`:''}`:'—';$('startReadout').textContent=fmt(state.start);$('finishReadout').textContent=fmt(state.finish);const q=quality();$('markQuality').textContent=q.label==='Pendiente'?'Carga un vídeo y marca inicio/final.':`Calidad: ${q.label}${f?' · resolución nominal '+(1000/f).toFixed(2)+' ms/frame':''}`}
+function updateResult(){if(!state.start||!state.finish){$('resultTime').textContent=$('resultMs').textContent=$('resultKmh').textContent='—';$('quality').textContent='Pendiente';$('qualityBar').style.width='0%';$('precisionReadout').textContent='Resolución temporal: —';$('consistencyReadout').textContent='Consistencia: —';return}const t=state.finish.time-state.start.time,d=distance();if(t<=0||!Number.isFinite(d)||d<=0){$('quality').textContent='Inválida';$('validationNote').textContent='Revisa inicio, final y distancia.';return}const ms=d/t,q=quality();$('resultTime').textContent=t.toFixed(3);$('resultMs').textContent=ms.toFixed(2);$('resultKmh').textContent=(ms*3.6).toFixed(2);$('quality').textContent=q.label;$('qualityBar').style.width=q.score+'%';const res=temporalResolution();$('precisionReadout').textContent=res?`Resolución nominal: ${(res*1000).toFixed(2)} ms/frame · incertidumbre conservadora de lectura: ±${(res*1000).toFixed(2)} ms`:'Resolución temporal: no verificada (FPS del archivo desconocido)';$('consistencyReadout').textContent=seriesConsistency();$('validationNote').textContent=`Marcaje válido · ${d.toFixed(2)} m · ${t.toFixed(3)} s · ${res?`FPS declarado ${state.fps}`:'FPS no verificado'}.`;updateAI(t,ms,q)}
+function seriesConsistency(){const a=state.series.attempts;if(a.length<2)return 'Consistencia: aún no hay suficientes intentos.';const ts=a.map(x=>x.time),mean=ts.reduce((s,x)=>s+x,0)/ts.length,sd=Math.sqrt(ts.reduce((s,x)=>s+(x-mean)**2,0)/ts.length),cv=mean?sd/mean*100:0;return `Consistencia de serie: CV ${cv.toFixed(2)}% · mejor ${Math.min(...ts).toFixed(3)} s · promedio ${mean.toFixed(3)} s`}
+function updateAI(t,ms,q){const id=$('athleteSelect').value,d=distance();const hist=state.db.history.filter(h=>h.athleteId===id&&Number(h.distance)===Number(d)).sort((a,b)=>a.time-b.time);const best=hist[0];const delta=best?t-best.time:null;const trend=best?(delta<0?`Mejora de ${Math.abs(delta).toFixed(3)} s respecto a la mejor marca histórica.`:delta>0?`Está ${delta.toFixed(3)} s por encima de la mejor marca histórica.`:'Iguala la mejor marca histórica.'):'No existe todavía una marca histórica comparable.';$('aiAnalysis').innerHTML=`<b>${d} m · ${t.toFixed(3)} s · ${ms.toFixed(2)} m/s</b><br>${trend}<br>${seriesConsistency()}<br><br><b>Control de calidad:</b> ${q.label}. ${state.fps?'El FPS fue declarado por el evaluador y se utiliza para estimar el número de frame y la resolución nominal.':'El FPS original no está verificado; la app no inventa una precisión de frame.'}`}
+function seekTo(t){const v=$('video');return new Promise(resolve=>{const target=Math.max(0,Math.min(v.duration||0,t));let done=false;const finish=()=>{if(done)return;done=true;v.removeEventListener('seeked',finish);resolve()};v.addEventListener('seeked',finish,{once:true});v.currentTime=target;setTimeout(finish,500)})}
+async function stepFrames(n){const v=$('video');if(!v.duration)return;v.pause();const fps=state.fps;if(!fps){alert('Para avanzar exactamente un frame necesitas conocer el FPS de la grabación. Selecciónalo arriba.');return}await seekTo(v.currentTime+n/fps);updateTime()}
+function bindVideo(){$('videoInput').onchange=e=>{const f=e.target.files?.[0];if(!f)return;if(state.videoUrl)URL.revokeObjectURL(state.videoUrl);state.videoFile=f;state.videoUrl=URL.createObjectURL(f);$('video').src=state.videoUrl;$('video').load();state.start=state.finish=null;state.lastFrameMeta=null;updateMarks()};$('video').onloadedmetadata=()=>{$('resolution').textContent=`${$('video').videoWidth}×${$('video').videoHeight}`;$('videoMeta').textContent=`${state.videoFile?.name||'Vídeo'} · ${(state.videoFile?.size/1048576||0).toFixed(1)} MB · duración ${$('video').duration.toFixed(3)} s`;updateTime();startRVFC()};$('video').ontimeupdate=updateTime;$('video').onplay=()=>{$('playPause').textContent='⏸ Pausar'};$('video').onpause=()=>{$('playPause').textContent='▶︎ Reproducir'};$('playPause').onclick=()=>{$('video').paused?$('video').play():$('video').pause()};$('playbackRate').onchange=e=>$('video').playbackRate=Number(e.target.value);$('back1').onclick=()=>stepFrames(-1);$('back10').onclick=()=>stepFrames(-10);$('forward1').onclick=()=>stepFrames(1);$('forward10').onclick=()=>stepFrames(10)}
+function startRVFC(){const v=$('video');if(!('requestVideoFrameCallback' in HTMLVideoElement.prototype))return;if(state.rvfcId&&v.cancelVideoFrameCallback)v.cancelVideoFrameCallback(state.rvfcId);const cb=(now,meta)=>{state.lastFrameMeta=meta;if(meta?.mediaTime!=null){const delta=Math.abs(meta.mediaTime-v.currentTime);if(delta<0.03)$('currentTime').title=`Frame presentado · PTS ${meta.mediaTime.toFixed(6)} s · presentados ${meta.presentedFrames??'—'}`}$('frameNumber').textContent=state.fps&&meta?.mediaTime!=null?Math.round(meta.mediaTime*state.fps):$('frameNumber').textContent;state.rvfcId=v.requestVideoFrameCallback(cb)};state.rvfcId=v.requestVideoFrameCallback(cb)}
+function bindFps(){$('fpsInput').onchange=()=>{const val=$('fpsInput').value;$('customFpsWrap').classList.toggle('hidden',val!=='custom');state.fps=val==='unknown'?null:val==='custom'?Number($('customFps').value):Number(val);$('sourceFps').textContent=state.fps?state.fps+' fps declarado':'No verificado';updateTime();updateMarks()};$('customFps').oninput=()=>{const n=Number($('customFps').value);state.fps=n>0?n:null;$('sourceFps').textContent=state.fps?state.fps+' fps declarado':'No verificado';updateTime();updateMarks()}}
+function mark(which){const v=$('video');if(!v.duration)return alert('Carga un vídeo primero.');const t=v.currentTime,fps=state.fps;state[which]={time:t,frame:fps?Math.round(t*fps):null,mediaTime:state.lastFrameMeta?.mediaTime??null};updateMarks();updateResult()}
+function bindMarks(){$('markStart').onclick=()=>mark('start');$('markFinish').onclick=()=>mark('finish');$('resetMarks').onclick=()=>{state.start=state.finish=null;updateMarks();updateResult()}}
+function currentAttempt(){if(!state.start||!state.finish)return null;const t=state.finish.time-state.start.time,d=distance();if(t<=0||d<=0)return null;const ms=d/t,q=quality();return {attempt:state.series.index,time:t,ms,kmh:ms*3.6,distance:d,quality:q.label,start:state.start,finish:state.finish}}
+function bindSeries(){$('startSeries').onclick=()=>{const athlete=$('athleteSelect').value;if(!athlete)return alert('Crea/selecciona un deportista.');if(!distance())return alert('Selecciona una distancia válida.');state.series={active:true,total:Number($('seriesCount').value),index:1,attempts:[]};$('startSeries').disabled=true;$('saveAttempt').disabled=false;$('finishSeries').disabled=false;$('cancelSeries').disabled=false;$('seriesStatus').textContent=`Serie activa · intento 1 de ${state.series.total}.`;renderAttempts()};$('saveAttempt').onclick=()=>{if(!state.series.active)return;const r=currentAttempt();if(!r)return alert('Marca inicio y final correctamente.');state.series.attempts.push({...r});renderAttempts();if(state.series.index>=state.series.total){$('seriesStatus').textContent='✓ Todos los intentos están listos. Pulsa «Finalizar serie» para guardar.';$('saveAttempt').disabled=true;return}state.series.index++;state.start=state.finish=null;updateMarks();updateResult();$('seriesStatus').textContent=`Intento ${state.series.index} de ${state.series.total}.`;renderAttempts()};$('finishSeries').onclick=()=>{if(!state.series.attempts.length)return alert('Guarda al menos un intento.');persistSeries();state.series={active:false,total:0,index:0,attempts:[]};state.start=state.finish=null;$('saveAttempt').disabled=true;$('finishSeries').disabled=true;$('cancelSeries').disabled=true;$('startSeries').disabled=false;$('seriesStatus').textContent='✓ Serie guardada en el historial.';renderAttempts();updateMarks();updateResult()};$('cancelSeries').onclick=()=>{state.series={active:false,total:0,index:0,attempts:[]};state.start=state.finish=null;$('saveAttempt').disabled=true;$('finishSeries').disabled=true;$('cancelSeries').disabled=true;$('startSeries').disabled=false;$('seriesStatus').textContent='Serie cancelada.';renderAttempts();updateMarks();updateResult()}}
+function persistSeries(){const athleteId=$('athleteSelect').value;const base={athleteId,distance:distance(),protocol:$('startProtocol').value,surface:$('surface').value,condition:$('condition').value,videoName:state.videoFile?.name||null,createdAt:new Date().toISOString(),fps:state.fps};state.series.attempts.forEach(a=>state.db.history.push({...base,id:uid(),attempt:a.attempt,time:a.time,ms:a.ms,kmh:a.kmh,quality:a.quality,start:a.start,finish:a.finish}));safeSave();renderAll()}
+function bindAthletes(){$('newAthlete').onclick=()=>{$('athleteForm').reset();$('athleteDialog').showModal()};$('cancelAthlete').onclick=()=>$('athleteDialog').close();$('athleteForm').onsubmit=e=>{e.preventDefault();const name=$('athleteName').value.trim();if(!name)return;state.db.athletes.push({id:uid(),name,dob:$('athleteDob').value,sex:$('athleteSex').value,sport:$('athleteSport').value.trim(),category:$('athleteCategory').value.trim(),notes:$('athleteNotes').value.trim(),createdAt:new Date().toISOString()});safeSave();renderAll();$('athleteDialog').close()}}
+function bindHistory(){$('historySearch').oninput=renderHistory;$('historyDistance').onchange=renderHistory;$('clearHistory').onclick=()=>{if(confirm('¿Borrar todo el historial? Esta acción no se puede deshacer.')){state.db.history=[];safeSave();renderAll()}};$('exportCsv').onclick=()=>{const head=['fecha','deportista','distancia_m','intento','tiempo_s','velocidad_ms','velocidad_kmh','calidad','protocolo','superficie','condicion','fps'];const lines=[head.join(';'),...state.db.history.map(h=>[new Date(h.createdAt).toLocaleString('es-PE'),athleteName(h.athleteId),h.distance,h.attempt,h.time.toFixed(3),h.ms.toFixed(2),h.kmh.toFixed(2),h.quality,h.protocol,h.surface,h.condition,h.fps??''].map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(';'))];const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'}));a.download='ARS_SPRINT_5_2_HISTORIAL.csv';a.click()}}
+function bindProfile(){$('profileSelect').onchange=renderProfile;$('printPdf').onclick=()=>window.print()}
+function bindBackup(){$('backupBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state.db,null,2)],{type:'application/json'}));a.download='ARS_SPRINT_5_2_BACKUP.json';a.click()};$('restoreInput').onchange=e=>{const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.athletes)||!Array.isArray(d.history))throw new Error();state.db={version:'5.2',athletes:d.athletes,history:d.history};safeSave();renderAll();alert('Respaldo restaurado correctamente.')}catch{alert('El archivo no tiene un formato de respaldo válido.')}};r.readAsText(f)}}
+function bindTabs(){document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$(b.dataset.tab).classList.add('active')})}
+function init(){safeLoad();bindTabs();bindAthletes();bindVideo();bindFps();bindMarks();bindSeries();bindHistory();bindProfile();bindBackup();renderAll();$('fpsInput').value='unknown'}
+init();
