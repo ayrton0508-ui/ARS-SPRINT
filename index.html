@@ -3,35 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111">
-<title>ARS SPRINT 3.0</title>
-<style>
-:root{--bg:#f3f4f6;--card:#fff;--ink:#101828;--muted:#667085;--line:#e4e7ec;--dark:#111;--yellow:#ffd400;--green:#12b76a;--red:#d92d20}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-body{padding-bottom:40px}button,input,select{font:inherit}button{border:0;border-radius:11px;padding:12px 14px;font-weight:850;cursor:pointer;min-height:44px}
-header{background:#111;color:#fff;padding:17px max(16px,env(safe-area-inset-left)) 15px;position:sticky;top:0;z-index:20}.brand{font-size:25px;font-weight:950}.brand b{color:var(--yellow)}.sub{font-size:12px;color:#bbb;margin-top:3px}
-main{max-width:1000px;margin:auto;padding:14px}.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:14px}.tabs button{white-space:nowrap;background:#fff;border:1px solid var(--line)}.tabs button.active{background:#111;color:#fff}
-.page{display:none}.page.active{display:block}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(16,24,40,.04)}
-h2{font-size:18px;margin:0 0 12px}h3{font-size:14px;margin:0 0 8px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}@media(max-width:680px){.grid{grid-template-columns:1fr}}
-label{display:block;font-size:12px;font-weight:800;color:#344054;margin-bottom:6px}input,select{width:100%;min-height:46px;padding:11px 12px;border:1px solid #d0d5dd;border-radius:11px;background:#fff;color:#111}
-.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}.dark{background:#111;color:#fff}.yellow{background:var(--yellow);color:#111}.light{background:#f2f4f7;color:#111}.danger{background:#fee4e2;color:#b42318}.green{background:#dcfae6;color:#067647}
-.notice{font-size:12px;color:var(--muted);line-height:1.5}.status{margin-top:10px;padding:10px 12px;border-radius:10px;background:#f2f4f7;font-size:12px}.hidden{display:none!important}
-.file{display:flex;align-items:center;justify-content:center;background:var(--yellow);color:#111;border-radius:12px;padding:13px;font-weight:900;cursor:pointer;text-align:center}.file input{display:none}
-.video{background:#000;border-radius:14px;overflow:hidden;margin-top:12px}.video video{display:block;width:100%;max-height:60vh;background:#000}
-.marks,.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.stats{grid-template-columns:repeat(4,1fr)}@media(max-width:680px){.stats{grid-template-columns:1fr 1fr}}
-.metric{border:1px solid var(--line);border-radius:13px;padding:12px;background:#fcfcfd}.metric small{display:block;color:var(--muted);font-size:11px}.metric strong{display:block;font-size:23px;margin-top:3px}
-.table{overflow:auto}table{width:100%;border-collapse:collapse;min-width:720px;font-size:12px}th,td{padding:9px 7px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{font-size:11px;color:var(--muted)}
-.list{display:grid;gap:8px}.person{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:11px}.avatar{width:42px;height:42px;border-radius:11px;background:#111;color:#ffd400;display:grid;place-items:center;font-weight:950}.person .grow{flex:1}.person strong{display:block}.person small{color:var(--muted)}
-.ai{background:#111;color:#fff;border-radius:13px;padding:15px;line-height:1.55;font-size:13px}.ai .tag{display:inline-block;background:#2b2b2b;color:#ffd400;padding:4px 7px;border-radius:99px;font-size:10px;font-weight:900;margin-bottom:8px}
-.profile{display:grid;grid-template-columns:110px 1fr;gap:14px}.profileAvatar{width:100px;height:100px;border-radius:16px;background:#111;color:#ffd400;display:grid;place-items:center;font-size:35px;font-weight:950}
-@media(max-width:600px){.profile{grid-template-columns:1fr}}
-footer{text-align:center;color:#98a2b3;font-size:11px}
-@media print{@page{size:A4;margin:12mm}body{background:#fff}.noPrint,header,.tabs,footer{display:none!important}.page{display:none!important}.page.print-page{display:block!important}.card{box-shadow:none;break-inside:avoid}.printOnly{display:block!important}}
-.printOnly{display:none}
-</style>
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ARS SPRINT 4.0</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header><div class="brand">ARS <b>SPRINT</b></div><div class="sub">Sistema profesional de evaluación de sprint · iPad</div></header>
+<header><div class="brand">ARS <b>SPRINT</b></div><div class="sub">Evaluación profesional de velocidad y sprint · optimizado para iPad</div></header>
 <main>
 <nav class="tabs" id="tabs">
 <button class="active" data-page="evaluacion">🏃 Evaluación</button>
@@ -42,197 +20,99 @@ footer{text-align:center;color:#98a2b3;font-size:11px}
 
 <section class="page active" id="evaluacion">
 <div class="card">
-<h2>1. Deportista y prueba</h2>
+<h2>1. Deportista y protocolo</h2>
 <div class="grid">
 <div><label>Deportista</label><select id="athleteSelect"><option value="">— Nuevo deportista —</option></select></div>
-<div><label>Nombre</label><input id="name" placeholder="Nombre y apellido"></div>
-<div><label>Edad</label><input id="age" type="number" min="1" max="100"></div>
+<div><label>Nombre</label><input id="name" placeholder="Nombre y apellido" autocomplete="off"></div>
+<div><label>Edad</label><input id="age" type="number" min="1" max="100" inputmode="numeric"></div>
 <div><label>Categoría</label><select id="category"><option>Libre</option><option>Sub-12</option><option>Sub-14</option><option>Sub-16</option><option>Sub-18</option><option>Mayores</option></select></div>
-<div><label>Prueba</label><select id="testType"><option value="10">Sprint 10 m</option><option value="20">Sprint 20 m</option><option value="30" selected>Sprint 30 m</option><option value="40">Sprint 40 m</option><option value="custom">Personalizada</option></select></div>
-<div><label>Distancia (m)</label><input id="distance" type="number" value="30" min="1" step=".1"></div>
+<div><label>Prueba</label><select id="testType"><option value="10">Sprint 10 m</option><option value="20">Sprint 20 m</option><option value="30" selected>Sprint 30 m</option><option value="40">Sprint 40 m</option><option value="custom">Distancia personalizada</option></select></div>
+<div><label>Distancia (m)</label><input id="distance" type="number" value="30" min="1" step=".1" inputmode="decimal"></div>
 </div>
 <div class="row" style="margin-top:10px"><button class="dark" id="saveAthleteQuick">＋ Guardar deportista</button><button class="light" id="clearAthlete">Limpiar</button></div>
 </div>
 
 <div class="card">
-<h2>2. Serie automática</h2>
+<h2>2. Intentos automáticos</h2>
 <div class="grid">
-<div><label>Intentos</label><select id="seriesCount"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
-<div><label>Modo</label><select id="mode"><option value="serie">Serie automática</option><option value="simple">Un intento</option></select></div>
+<div><label>Número de intentos</label><select id="seriesCount"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+<div><label>Protocolo</label><select id="mode"><option value="serie">Serie automática</option><option value="simple">Un intento</option></select></div>
 </div>
 <div class="row" style="margin-top:10px"><button class="yellow" id="startSeries">▶ Iniciar serie</button><button class="light" id="nextAttempt" disabled>Siguiente intento</button><button class="danger" id="cancelSeries">Cancelar</button></div>
-<div id="seriesStatus" class="status">Serie preparada.</div>
+<div id="seriesStatus" class="status">Preparado. El sistema guardará automáticamente cada intento al marcar INICIO y FINAL.</div>
 </div>
 
 <div class="card">
-<h2>3. Vídeo</h2>
-<label class="file">🎥 Seleccionar vídeo desde Fotos / Archivos<input id="videoFile" type="file" accept="video/*"></label>
-<div id="videoBox" class="video hidden"><video id="video" controls playsinline webkit-playsinline preload="metadata"></video></div>
+<h2>3. Vídeo de la prueba</h2>
+<label class="file">🎥 Seleccionar vídeo desde Fotos o Archivos<input id="videoFile" type="file" accept="video/*"></label>
+<div id="videoBox" class="video hidden"><div class="videoOverlay" id="videoOverlay">Listo para marcar</div><video id="video" controls playsinline webkit-playsinline preload="metadata"></video></div>
 <div id="videoStatus" class="status">Ningún vídeo seleccionado.</div>
+<div class="notice" style="margin-top:8px">Para máxima compatibilidad en iPad: vídeo MP4/H.264. El archivo se reproduce localmente; no se sube a internet.</div>
 </div>
 
 <div class="card">
-<h2>4. Marcaje</h2>
+<h2>4. Marcaje de alta precisión</h2>
 <div class="row"><button class="yellow" id="startBtn">▶ INICIO</button><button class="dark" id="endBtn">⏹ FINAL</button><button class="light" id="resetMarks">↺ Reiniciar</button></div>
-<div class="marks"><div class="metric"><small>Inicio</small><strong id="startTime">—</strong></div><div class="metric"><small>Final</small><strong id="endTime">—</strong></div></div>
-<p class="notice">Pausa el vídeo en el inicio del sprint y en el cruce de la llegada. El tiempo se calcula con la posición temporal del vídeo.</p>
+<div class="marks">
+<div class="metric"><small>Frame / tiempo de inicio</small><strong id="startTime">—</strong></div>
+<div class="metric"><small>Frame / tiempo de final</small><strong id="endTime">—</strong></div>
+</div>
+<p class="notice">Pausa el vídeo exactamente en el primer apoyo de la salida y en el instante de cruce de la llegada. Usa los controles del reproductor para buscar el momento.</p>
 </div>
 
 <div class="card">
-<h2>5. Resultado</h2>
+<h2>5. Resultado calculado</h2>
 <div class="stats">
-<div class="metric"><small>Tiempo</small><strong id="time">—</strong><small>s</small></div>
-<div class="metric"><small>Velocidad</small><strong id="ms">—</strong><small>m/s</small></div>
-<div class="metric"><small>Velocidad</small><strong id="kmh">—</strong><small>km/h</small></div>
-<div class="metric"><small>Nivel</small><strong id="level">—</strong></div>
+<div class="metric" id="mTime"><small>Tiempo</small><strong id="time">—</strong><small>s</small></div>
+<div class="metric" id="mMs"><small>Velocidad media</small><strong id="ms">—</strong><small>m/s</small></div>
+<div class="metric" id="mKmh"><small>Velocidad media</small><strong id="kmh">—</strong><small>km/h</small></div>
+<div class="metric"><small>Nivel referencial</small><strong id="level">—</strong></div>
 </div>
+<div id="qualityStatus" class="status">Completa el marcaje para calcular.</div>
 <div class="row" style="margin-top:12px"><button class="dark" id="saveResult">💾 Guardar resultado</button></div>
 </div>
 
 <div class="card">
-<h2>6. 🤖 Análisis inteligente</h2>
-<div class="ai"><div class="tag">ANÁLISIS LOCAL ACTIVO</div><div id="ai">La IA de apoyo analizará automáticamente cada resultado y la evolución del deportista. Para IA generativa externa se requiere un servidor seguro; no se colocará una API key en este archivo.</div></div>
+<h2>6. 🧠 Análisis inteligente</h2>
+<div class="ai"><div class="tag">MOTOR DE ANÁLISIS LOCAL</div><div id="ai">Analizará automáticamente velocidad, mejor marca, promedio, consistencia y tendencia. No envía datos ni vídeos a terceros.</div></div>
 </div>
 </section>
 
 <section class="page" id="deportistas">
-<div class="card"><h2>👥 Deportistas</h2>
-<div class="grid"><div><label>Nombre</label><input id="newName" placeholder="Nombre y apellido"></div><div><label>Edad</label><input id="newAge" type="number"></div><div><label>Categoría</label><select id="newCat"><option>Libre</option><option>Sub-12</option><option>Sub-14</option><option>Sub-16</option><option>Sub-18</option><option>Mayores</option></select></div></div>
+<div class="card"><h2>👥 Base de deportistas</h2>
+<div class="grid"><div><label>Nombre</label><input id="newName" placeholder="Nombre y apellido"></div><div><label>Edad</label><input id="newAge" type="number" inputmode="numeric"></div><div><label>Categoría</label><select id="newCat"><option>Libre</option><option>Sub-12</option><option>Sub-14</option><option>Sub-16</option><option>Sub-18</option><option>Mayores</option></select></div></div>
 <div class="row" style="margin-top:10px"><button class="dark" id="addAthlete">＋ Registrar deportista</button></div>
 <div id="athleteList" class="list" style="margin-top:12px"></div></div>
 </section>
 
 <section class="page" id="historial">
-<div class="card"><h2>📊 Historial</h2>
-<div class="grid"><div><label>Filtrar deportista</label><select id="historyFilter"><option value="">Todos</option></select></div><div><label>Filtrar distancia</label><select id="distanceFilter"><option value="">Todas</option><option>10</option><option>20</option><option>30</option><option>40</option></select></div></div>
+<div class="card"><h2>📊 Historial de evaluaciones</h2>
+<div class="grid"><div><label>Filtrar deportista</label><select id="historyFilter"><option value="">Todos</option></select></div><div><label>Filtrar distancia</label><select id="distanceFilter"><option value="">Todas</option><option value="10">10 m</option><option value="20">20 m</option><option value="30">30 m</option><option value="40">40 m</option></select></div></div>
 <div class="row" style="margin-top:10px"><button class="yellow" id="exportHistory">📤 Exportar CSV</button><button class="danger" id="clearHistory">🗑 Borrar historial</button></div>
+<div id="historySummary" class="stats" style="margin-top:12px"></div>
 <div class="table" style="margin-top:12px"><table><thead><tr><th>Fecha</th><th>Deportista</th><th>Prueba</th><th>Intento</th><th>Tiempo</th><th>m/s</th><th>km/h</th><th>Nivel</th></tr></thead><tbody id="history"></tbody></table></div></div>
 </section>
 
 <section class="page" id="ficha">
-<div class="card noPrint"><h2>📋 Ficha individual</h2>
+<div class="card noPrint"><h2>📋 Ficha individual de rendimiento</h2>
 <label>Seleccionar deportista</label><select id="profileSelect"><option value="">— Selecciona —</option></select>
-<div class="row" style="margin-top:10px"><button class="yellow" id="printProfile">🖨️ Imprimir / Guardar PDF</button></div>
-<p class="notice">En iPadOS, desde la ventana de impresión puedes guardar o compartir el documento como PDF.</p></div>
+<div class="row" style="margin-top:10px"><button class="yellow" id="printProfile">🖨️ Imprimir / Guardar PDF</button><button class="blue" id="profileToEvaluation">🏃 Evaluar este deportista</button></div>
+<p class="notice">En iPad, en la ventana de impresión selecciona Compartir y luego “Guardar en Archivos” o “Guardar PDF”, según tu versión de iPadOS.</p></div>
 <div class="card">
-<div class="printOnly" style="text-align:center"><h1>ARS SPRINT</h1><p>Ficha individual de rendimiento</p></div>
+<div class="printOnly" style="text-align:center"><h1>ARS SPRINT</h1><p>Ficha individual de rendimiento deportivo</p></div>
 <div class="profile"><div class="profileAvatar" id="profileInitials">AR</div><div><h2 id="profileName">Selecciona un deportista</h2><div id="profileInfo" class="notice">—</div></div></div>
 <div class="stats">
-<div class="metric"><small>Evaluaciones</small><strong id="pCount">0</strong></div><div class="metric"><small>Mejor tiempo</small><strong id="pBest">—</strong></div><div class="metric"><small>Mejor velocidad</small><strong id="pSpeed">—</strong></div><div class="metric"><small>Promedio</small><strong id="pAvg">—</strong></div>
+<div class="metric"><small>Evaluaciones</small><strong id="pCount">0</strong></div><div class="metric"><small>Mejor tiempo</small><strong id="pBest">—</strong></div><div class="metric"><small>Mayor velocidad</small><strong id="pSpeed">—</strong></div><div class="metric"><small>Promedio</small><strong id="pAvg">—</strong></div>
 </div>
+<div class="card" style="margin-top:12px"><h3>Resumen por distancia</h3><div id="distanceSummary" class="grid"></div></div>
 <div class="card" style="margin-top:12px"><h3>Historial del deportista</h3><div class="table"><table><thead><tr><th>Fecha</th><th>Dist.</th><th>Intento</th><th>Tiempo</th><th>m/s</th><th>km/h</th><th>Nivel</th></tr></thead><tbody id="profileHistory"></tbody></table></div></div>
 <div class="ai" id="profileAI">Selecciona un deportista.</div>
-<div class="printOnly" style="margin-top:25px;border-top:1px solid #ddd;padding-top:12px;font-size:11px;color:#666">ARS SPRINT · Informe generado a partir de los registros guardados en el dispositivo.</div>
+<div class="printOnly" style="margin-top:25px;border-top:1px solid #ddd;padding-top:12px;font-size:11px;color:#666">ARS SPRINT 4.0 · Informe generado con los registros almacenados localmente en el dispositivo.</div>
 </div>
 </section>
-<footer>ARS SPRINT 3.0 · Los vídeos se procesan localmente.</footer>
+<footer>ARS SPRINT 4.0 · Datos y vídeos procesados localmente en el dispositivo.</footer>
 </main>
 
-<script>
-"use strict";
-(function(){
-const $=id=>document.getElementById(id);
-let objectUrl=null,start=null,end=null,current=null,series=[],seriesActive=false;
-const KEYA="arsSprintAthletes30",KEYH="arsSprintHistory30";
-const read=k=>{try{return JSON.parse(localStorage.getItem(k)||"[]")}catch(e){return[]}};
-const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-const fmt=n=>Number.isFinite(n)?n.toFixed(3)+" s":"—";
-
-function navigate(id){
- document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
- document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
- if(id==="deportistas")renderAthletes();
- if(id==="historial")renderHistory();
- if(id==="ficha"){renderProfileSelect();renderProfile();}
- window.scrollTo({top:0,behavior:"smooth"});
-}
-document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.page)));
-
-function renderAthletes(){
- const a=read(KEYA), h=read(KEYH),sel=$("athleteSelect");
- sel.innerHTML='<option value="">— Nuevo deportista —</option>'+a.map(x=>`<option value="${x.id}">${esc(x.name)} · ${esc(x.category)}</option>`).join("");
- $("athleteList").innerHTML=a.length?a.map(x=>{let n=h.filter(r=>r.athleteId===x.id).length,ini=x.name.split(/\s+/).slice(0,2).map(s=>s[0]).join("").toUpperCase();return `<div class="person"><div class="avatar">${esc(ini)}</div><div class="grow"><strong>${esc(x.name)}</strong><small>${esc(x.category)} · ${x.age||"Edad no indicada"} · ${n} evaluaciones</small></div><button class="light" data-use="${x.id}">Usar</button><button class="danger" data-remove="${x.id}">Eliminar</button></div>`}).join(""):'<p class="notice">No hay deportistas registrados.</p>';
- document.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>{navigate("evaluacion");$("athleteSelect").value=b.dataset.use;fillAthlete()});
- document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{if(confirm("¿Eliminar este deportista?")){write(KEYA,a.filter(x=>x.id!==b.dataset.remove));renderAthletes();}});
-}
-function fillAthlete(){const id=$("athleteSelect").value,a=read(KEYA).find(x=>x.id===id);if(a){$("name").value=a.name;$("age").value=a.age||"";$("category").value=a.category||"Libre"}}
-$("athleteSelect").onchange=fillAthlete;
-
-function calculate(){
- const d=parseFloat($("distance").value);
- if(start===null||end===null||end<=start||!d){current=null;$("time").textContent="—";$("ms").textContent="—";$("kmh").textContent="—";$("level").textContent="—";$("ai").textContent="Marca INICIO y FINAL para analizar.";return}
- const time=end-start,ms=d/time,kmh=ms*3.6;
- let level=time<4?"Excelente":time<4.5?"Muy bueno":time<5?"Bueno":time<5.5?"Aceptable":"En desarrollo";
- $("time").textContent=time.toFixed(3);$("ms").textContent=ms.toFixed(2);$("kmh").textContent=kmh.toFixed(2);$("level").textContent=level;
- const h=read(KEYH),name=$("name").value.trim()||"Sin nombre",mine=h.filter(r=>r.name.toLowerCase()===name.toLowerCase()&&Number(r.distance)===d);
- let trend="";
- if(mine.length){const best=Math.min(...mine.map(r=>r.time)),delta=((best-time)/time)*100;trend=delta>0?` Su mejor registro histórico en ${d} m es ${best.toFixed(3)} s.`:" Este es su mejor registro en esta distancia hasta el momento."}
- const advice=ms>=8?"Velocidad media muy alta para el registro. Mantén el trabajo de aceleración y técnica.":ms>=6?"Buen nivel de velocidad media. Prioriza calidad de aceleraciones y recuperación.":"Existe margen de mejora. Conviene revisar técnica, aceleración, fuerza y condiciones de evaluación.";
- $("ai").innerHTML=`<b>ANÁLISIS AUTOMÁTICO</b><br>${advice}${trend}<br><br><span style="color:#aaa">Este análisis deportivo local funciona sin enviar datos a terceros. Una IA generativa real requiere un servicio de IA conectado mediante un backend seguro.</span>`;
- current={id:uid(),date:new Date().toLocaleString("es-PE"),name,age:$("age").value,category:$("category").value,distance:d,attempt:series.length+1,time,ms,kmh,level,athleteId:$("athleteSelect").value||null};
-}
-$("distance").oninput=calculate;
-$("testType").onchange=()=>{if($("testType").value!=="custom"){$("distance").value=$("testType").value;calculate()}};
-
-$("videoFile").onchange=function(){
- const f=this.files&&this.files[0];if(!f)return;if(objectUrl)URL.revokeObjectURL(objectUrl);
- objectUrl=URL.createObjectURL(f);$("video").src=objectUrl;$("video").load();$("videoBox").classList.remove("hidden");$("videoStatus").textContent="✓ Vídeo seleccionado: "+f.name;start=end=null;$("startTime").textContent="—";$("endTime").textContent="—";calculate();
-};
-$("video").onloadedmetadata=()=>{$("videoStatus").textContent+=" · Duración: "+(Number.isFinite($("video").duration)?$("video").duration.toFixed(2)+" s":"no disponible")};
-$("video").onerror=()=>{$("videoStatus").textContent="✕ El navegador no puede reproducir este vídeo. Prueba MP4 H.264."};
-
-$("startBtn").onclick=()=>{if(!$("video").src){alert("Selecciona un vídeo.");return}start=$("video").currentTime;end=null;$("startTime").textContent=fmt(start);$("endTime").textContent="—";calculate()};
-$("endBtn").onclick=()=>{if(!$("video").src){alert("Selecciona un vídeo.");return}end=$("video").currentTime;$("endTime").textContent=fmt(end);calculate();if(seriesActive&&current){series.push({...current,attempt:String(series.length+1)});if(series.length<parseInt($("seriesCount").value)){ $("seriesStatus").textContent=`✓ Intento ${series.length} registrado. Pulsa “Siguiente intento”.`;$("nextAttempt").disabled=false}else{$("seriesStatus").textContent=`✓ Serie completada: ${series.length} intentos. Pulsa Guardar resultado.`;seriesActive=false;$("nextAttempt").disabled=true;const best=Math.min(...series.map(x=>x.time)),avg=series.reduce((s,x)=>s+x.time,0)/series.length;$("ai").innerHTML=`<b>SERIE COMPLETADA</b><br>Mejor: <b>${best.toFixed(3)} s</b> · Promedio: <b>${avg.toFixed(3)} s</b> · Intentos: <b>${series.length}</b>.<br><br>La aplicación ha identificado automáticamente la mejor marca y el promedio de la serie.`}}};
-$("resetMarks").onclick=()=>{start=end=null;$("startTime").textContent="—";$("endTime").textContent="—";calculate()};
-$("startSeries").onclick=()=>{if(!$("name").value.trim()){alert("Selecciona o escribe un deportista.");return}series=[];seriesActive=$("mode").value==="serie";$("seriesStatus").textContent=`Serie iniciada · objetivo: ${$("seriesCount").value} intento(s).`;$("nextAttempt").disabled=true;start=end=null;$("startTime").textContent="—";$("endTime").textContent="—";calculate()};
-$("nextAttempt").onclick=()=>{start=end=null;current=null;$("startTime").textContent="—";$("endTime").textContent="—";$("nextAttempt").disabled=true;$("seriesStatus").textContent=`Preparado para intento ${series.length+1} de ${$("seriesCount").value}.`};
-$("cancelSeries").onclick=()=>{series=[];seriesActive=false;$("nextAttempt").disabled=true;$("seriesStatus").textContent="Serie cancelada."};
-
-function saveAthleteData(name,age,cat){
- let a=read(KEYA),found=a.find(x=>x.name.toLowerCase()===name.toLowerCase());
- if(found){found.age=age;found.category=cat}else{a.push({id:uid(),name,age,category:cat})}
- write(KEYA,a);renderAthletes();
-}
-$("saveAthleteQuick").onclick=()=>{let n=$("name").value.trim();if(!n){alert("Escribe el nombre.");return}saveAthleteData(n,$("age").value,$("category").value);let a=read(KEYA).find(x=>x.name.toLowerCase()===n.toLowerCase());$("athleteSelect").value=a.id;alert("Deportista guardado.")};
-$("clearAthlete").onclick=()=>{$("athleteSelect").value="";$("name").value="";$("age").value="";$("category").value="Libre"};
-$("addAthlete").onclick=()=>{let n=$("newName").value.trim();if(!n){alert("Escribe el nombre.");return}saveAthleteData(n,$("newAge").value,$("newCat").value);$("newName").value="";$("newAge").value="";renderAthletes()};
-
-$("saveResult").onclick=()=>{
- if(series.length){let h=read(KEYH),ids=$("athleteSelect").value;series.forEach(r=>{r.athleteId=ids||null;h.push(r)});write(KEYH,h);alert(`${series.length} intento(s) guardado(s).`);series=[];renderHistory();renderAthletes();renderProfileSelect();return}
- if(!current){alert("Completa INICIO y FINAL.");return}
- let h=read(KEYH);h.push(current);write(KEYH,h);alert("Resultado guardado.");renderHistory();renderAthletes();renderProfileSelect();
-};
-
-function renderHistory(){
- const h=read(KEYH),af=read(KEYA),hf=$("historyFilter"),df=$("distanceFilter");
- hf.innerHTML='<option value="">Todos</option>'+af.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join("");
- const aid=hf.value,d=df.value;
- const rows=h.filter(r=>(!aid||r.athleteId===aid)&&(!d||String(r.distance)===d));
- $("history").innerHTML=rows.slice().reverse().map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.name)}</td><td>Sprint ${r.distance} m</td><td>${r.attempt}</td><td>${r.time.toFixed(3)} s</td><td>${r.ms.toFixed(2)}</td><td>${r.kmh.toFixed(2)}</td><td>${esc(r.level)}</td></tr>`).join("")||'<tr><td colspan="8">No hay registros.</td></tr>';
-}
-$("historyFilter").onchange=renderHistory;$("distanceFilter").onchange=renderHistory;
-$("clearHistory").onclick=()=>{if(confirm("¿Borrar todo el historial?")){localStorage.removeItem(KEYH);renderHistory();renderAthletes();renderProfileSelect();renderProfile()}};
-$("exportHistory").onclick=()=>{const h=read(KEYH);if(!h.length){alert("No hay datos.");return}const rows=[["Fecha","Deportista","Edad","Categoría","Distancia_m","Intento","Tiempo_s","m_s","km_h","Nivel"],...h.map(r=>[r.date,r.name,r.age,r.category,r.distance,r.attempt,r.time.toFixed(3),r.ms.toFixed(2),r.kmh.toFixed(2),r.level])];const csv="\ufeff"+rows.map(row=>row.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="ARS_SPRINT_historial.csv";a.click()};
-
-function renderProfileSelect(){const a=read(KEYA);$("profileSelect").innerHTML='<option value="">— Selecciona —</option>'+a.map(x=>`<option value="${x.id}">${esc(x.name)} · ${esc(x.category)}</option>`).join("")}
-function renderProfile(){
- const id=$("profileSelect").value;if(!id){$("profileName").textContent="Selecciona un deportista";$("profileInfo").textContent="—";$("profileInitials").textContent="AR";$("pCount").textContent="0";$("pBest").textContent="—";$("pSpeed").textContent="—";$("pAvg").textContent="—";$("profileHistory").innerHTML="";$("profileAI").textContent="Selecciona un deportista.";return}
- const a=read(KEYA).find(x=>x.id===id),h=read(KEYH).filter(r=>r.athleteId===id);if(!a)return;
- $("profileName").textContent=a.name;$("profileInfo").textContent=(a.age?a.age+" años":"Edad no indicada")+" · "+a.category;$("profileInitials").textContent=a.name.split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase();$("pCount").textContent=h.length;
- if(!h.length){$("pBest").textContent="—";$("pSpeed").textContent="—";$("pAvg").textContent="—";$("profileHistory").innerHTML='<tr><td colspan="7">Sin evaluaciones.</td></tr>';$("profileAI").textContent="No hay suficientes datos para analizar.";return}
- const best=Math.min(...h.map(x=>x.time)),speed=Math.max(...h.map(x=>x.ms)),avg=h.reduce((s,x)=>s+x.time,0)/h.length;
- $("pBest").textContent=best.toFixed(3)+" s";$("pSpeed").textContent=speed.toFixed(2)+" m/s";$("pAvg").textContent=avg.toFixed(3)+" s";
- $("profileHistory").innerHTML=h.slice().reverse().map(x=>`<tr><td>${esc(x.date)}</td><td>${x.distance} m</td><td>${x.attempt}</td><td>${x.time.toFixed(3)} s</td><td>${x.ms.toFixed(2)}</td><td>${x.kmh.toFixed(2)}</td><td>${esc(x.level)}</td></tr>`).join("");
- const first=h[0],last=h[h.length-1],change=((first.time-last.time)/first.time*100);
- $("profileAI").innerHTML=`<b>ANÁLISIS DEL DEPORTISTA</b><br>${change>0?`La última marca muestra una mejora aproximada de <b>${change.toFixed(1)}%</b> respecto al primer registro.`:change<0?`La última marca está aproximadamente <b>${Math.abs(change).toFixed(1)}%</b> por encima del primer registro; revisa condiciones y protocolo.`:"Se necesita más evolución para establecer una tendencia."}<br><br>Mejor tiempo: <b>${best.toFixed(3)} s</b>. Mayor velocidad: <b>${speed.toFixed(2)} m/s</b>. Promedio: <b>${avg.toFixed(3)} s</b>.`;
-}
-$("profileSelect").onchange=renderProfile;
-$("printProfile").onclick=()=>{if(!$("profileSelect").value){alert("Selecciona un deportista.");return}document.getElementById("ficha").classList.add("print-page");window.print();setTimeout(()=>document.getElementById("ficha").classList.remove("print-page"),500)};
-
-renderAthletes();renderHistory();renderProfileSelect();renderProfile();
-})();
-</script>
+<script src="app.js" defer></script>
 </body>
 </html>
