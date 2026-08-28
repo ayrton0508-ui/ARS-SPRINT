@@ -1,0 +1,82 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111"><title>ARS SPRINT V2</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f4f6;color:#111;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#111;color:white;padding:20px 17px;position:sticky;top:0;z-index:4}header strong{font-size:22px;letter-spacing:1px}header small{display:block;color:#aaa;margin-top:4px}
+main{max-width:760px;margin:auto;padding:14px}.card{background:#fff;border-radius:18px;padding:16px;margin-bottom:13px;box-shadow:0 2px 14px #0001}
+h2{font-size:17px;margin:0 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{font-size:12px;color:#666;display:block;margin:0 0 5px}
+input,select,button{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;font-size:16px;background:white}button{background:#111;color:#fff;border:0;font-weight:700}button.alt{background:#eee;color:#111}
+.row{display:flex;gap:9px}.row>*{flex:1}.muted{font-size:13px;color:#777}.center{text-align:center}
+.stage{position:relative;background:#111;border-radius:14px;overflow:hidden;min-height:220px}.stage video{width:100%;display:block;max-height:58vh;object-fit:contain}.line{position:absolute;top:0;bottom:0;width:4px;background:#fff;box-shadow:0 0 0 2px #1118}.line span{position:absolute;top:8px;left:7px;background:#111;color:#fff;padding:5px 8px;border-radius:8px;font-size:12px;white-space:nowrap}.startline{left:18%}.finishline{left:82%}
+.badge{display:inline-block;padding:5px 9px;border-radius:99px;background:#eee;font-size:11px;font-weight:700}.green{background:#dff5e3;color:#176b2a}
+.big{font-size:46px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;margin:5px 0 10px}
+.hidden{display:none}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:8px 4px;border-bottom:1px solid #eee;text-align:left}th{color:#777}
+nav{display:flex;gap:8px;overflow:auto;margin-bottom:13px}nav button{width:auto;white-space:nowrap;padding:9px 13px;background:#fff;color:#111;border:1px solid #ddd}nav button.active{background:#111;color:#fff}
+</style></head><body>
+<header><strong>ARS SPRINT</strong><small>V2 · análisis de sprint por vídeo · ARSPORT</small></header>
+<main>
+<nav><button class="tab active" data-t="test">Sprint</button><button class="tab" data-t="history">Historial</button></nav>
+<section id="test">
+<div class="card"><h2>Deportista</h2><div class="grid">
+<div><label>Nombre</label><input id="name" placeholder="Nombre y apellido"></div><div><label>Deporte</label><input id="sport" placeholder="Fútbol"></div>
+<div><label>Edad</label><input id="age" type="number"></div><div><label>Categoría</label><input id="cat" placeholder="Sub-15"></div></div></div>
+
+<div class="card"><h2>Configuración</h2><div class="grid">
+<div><label>Distancia</label><select id="dist"><option>5</option><option selected>10</option><option>20</option><option>30</option></select></div>
+<div><label>Modo</label><select id="mode"><option value="manual">Cronometraje manual</option><option value="video">Análisis por vídeo</option></select></div></div>
+<p class="muted">En modo vídeo puedes cargar un vídeo del sprint y avanzar cuadro a cuadro para marcar salida y llegada. Esto evita depender del cronómetro durante la carrera.</p></div>
+
+<div class="card"><h2>Vídeo</h2>
+<input id="file" type="file" accept="video/*" capture="environment">
+<div class="stage" style="margin-top:10px"><video id="vid" controls playsinline></video>
+<div class="line startline" id="sl"><span>SALIDA</span></div><div class="line finishline" id="fl"><span>LLEGADA</span></div></div>
+<div class="row" style="margin-top:10px"><button id="markStart">MARCAR SALIDA</button><button id="markFinish" class="alt">MARCAR LLEGADA</button></div>
+<div class="row" style="margin-top:9px"><button id="prev" class="alt">◀ CUADRO</button><button id="next" class="alt">CUADRO ▶</button></div>
+<p id="videoInfo" class="center muted">Carga un vídeo para comenzar.</p>
+</div>
+
+<div class="card"><h2>Resultado</h2><div class="big" id="time">—</div>
+<div class="center"><span id="speed" class="badge">Velocidad: —</span></div>
+<p id="status" class="center muted">Marca los dos puntos del vídeo.</p></div>
+
+<div class="card"><h2>Guardar</h2><button id="save">GUARDAR INTENTO</button></div>
+<div class="card"><h2>Sesión</h2><div id="session" class="muted">Sin intentos.</div></div>
+</section>
+
+<section id="history" class="hidden"><div class="card"><h2>Historial</h2><div id="hist" class="muted">Sin registros.</div>
+<button id="clear" style="margin-top:12px;background:#c62828">BORRAR HISTORIAL</button></div></section>
+</main>
+<script>
+let video=$('vid'), start=null, finish=null, currentTime=0, session=[], history=JSON.parse(localStorage.getItem('arsSprintV2')||'[]');
+function $(x){return document.getElementById(x)}
+$('file').onchange=e=>{let f=e.target.files[0];if(!f)return;video.src=URL.createObjectURL(f);start=finish=null;update()};
+video.onloadedmetadata=()=>{$('videoInfo').textContent=`Duración: ${video.duration.toFixed(2)} s · FPS del archivo no disponible con fiabilidad en el navegador.`};
+function frameStep(){return 1/30}
+$('prev').onclick=()=>{video.currentTime=Math.max(0,video.currentTime-frameStep());update()};
+$('next').onclick=()=>{video.currentTime=Math.min(video.duration||999,video.currentTime+frameStep());update()};
+$('markStart').onclick=()=>{start=video.currentTime;update()};
+$('markFinish').onclick=()=>{finish=video.currentTime;update()};
+function update(){
+ if(start!==null)$('sl').style.left='18%';
+ if(finish!==null)$('fl').style.left='82%';
+ if(start!==null&&finish!==null&&finish>start){
+  let t=finish-start,d=Number($('dist').value),ms=d/t;
+  $('time').textContent=t.toFixed(3)+' s';$('speed').textContent=`${ms.toFixed(2)} m/s · ${(ms*3.6).toFixed(2)} km/h`;$('status').innerHTML='<span class="badge green">RESULTADO LISTO</span>';
+ }else $('status').textContent='Marca salida y llegada en el vídeo.';
+}
+$('save').onclick=()=>{
+ if(start===null||finish===null||finish<=start){alert('Marca primero salida y llegada.');return}
+ let t=finish-start,d=Number($('dist').value),ms=d/t;
+ let x={distance:d,time:t,ms,kmh:ms*3.6,date:new Date().toLocaleString('es-PE'),name:$('name').value,sport:$('sport').value,cat:$('cat').value};
+ session.push(x);renderSession();
+};
+function renderSession(){if(!session.length){$('session').textContent='Sin intentos.';return}
+let best=Math.min(...session.map(x=>x.time));$('session').innerHTML='<table><tr><th>Dist.</th><th>Tiempo</th><th>Vel.</th><th></th></tr>'+session.map(x=>`<tr><td>${x.distance} m</td><td><b>${x.time.toFixed(3)} s</b></td><td>${x.kmh.toFixed(1)} km/h</td><td>${x.time===best?'<span class="badge green">MEJOR</span>':''}</td></tr>`).join('')+'</table>';
+}
+function renderHist(){if(!history.length){$('hist').textContent='Sin registros.';return}
+$('hist').innerHTML=history.slice().reverse().map(x=>`<div style="padding:10px 0;border-bottom:1px solid #eee"><b>${x.name||'Sin nombre'}</b><br>${x.date}<br>${x.attempts.map(a=>`${a.distance} m · ${a.time.toFixed(3)} s · ${a.kmh.toFixed(1)} km/h`).join(' | ')}</div>`).join('')}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('test').classList.toggle('hidden',b.dataset.t==='history');$('history').classList.toggle('hidden',b.dataset.t!=='history');if(b.dataset.t==='history')renderHist()});
+$('clear').onclick=()=>{if(confirm('¿Borrar historial?')){history=[];localStorage.removeItem('arsSprintV2');renderHist()}};
+window.addEventListener('beforeunload',()=>{if(session.length){let old=history.find(x=>x.name===($('name').value||'Sin nombre')&&x.date.slice(0,10)===new Date().toLocaleDateString('es-PE'));if(old)old.attempts.push(...session);else history.push({name:$('name').value||'Sin nombre',date:new Date().toLocaleString('es-PE'),attempts:[...session]});localStorage.setItem('arsSprintV2',JSON.stringify(history))}});
+</script></body></html>
