@@ -1,13 +1,18 @@
-REFERENCIAS TÉCNICAS
+BASE TÉCNICA ARS SPRINT 6.1
 
-- MDN: HTMLVideoElement.requestVideoFrameCallback(): acceso eficiente a frames presentados y metadata como mediaTime y presentedFrames.
-- MDN: HTMLMediaElement.currentTime: posición temporal de reproducción y búsqueda mediante currentTime.
-- WebKit: Safari 17.2 y WebCodecs, con acceso de bajo nivel a frames de vídeo para formatos compatibles.
+La arquitectura se diseñó considerando literatura sobre confiabilidad y validez de medición de sprint:
 
-Criterio de diseño:
-1) separar medición, cálculo e interpretación;
-2) no declarar FPS desconocido como si fuera 30 fps;
-3) mostrar resolución nominal e incertidumbre cuando el FPS es declarado;
-4) guardar protocolo, distancia y condiciones;
-5) usar la IA como asistencia, no como fuente de números inventados;
-6) validar contra fotocélulas u otro criterio de referencia antes de usar el sistema para investigación.
+- Haugen & Buchheit, Sprint Running Performance Monitoring: Methodological and Practical Considerations, Sports Medicine (2016). Señala errores relevantes en sprints cortos y la necesidad de considerar error típico y cambios mínimos relevantes.
+- Duthie et al., Reliability of 10-m sprint time using different starting techniques (2006). El protocolo de salida afecta la comparación; el error típico puede superar cambios pequeños.
+- Banyard et al., Reliability of 20 m Sprint Time Using a Novel Assessment Technique (2025). Reporta CV e ICC y umbrales de cambio detectable para 0–20 m y splits.
+- Photo Finish smartphone app validity/reliability study (2024). Muestra que vídeo móvil puede correlacionarse fuertemente con fotocélulas, aunque con sesgo y error propios del método.
+- Estimación de máxima velocidad con splits de 5 m vs 10 m (2021). Los splits de 5 m pueden mejorar la estimación frente a 10 m en determinadas condiciones.
+
+Principio del software:
+- separar medición, cálculo, calidad e interpretación;
+- conservar metadatos del protocolo;
+- no inventar FPS;
+- mostrar resolución temporal nominal;
+- mantener historial por deportista y por intento;
+- permitir respaldo local;
+- facilitar impresión/PDF.

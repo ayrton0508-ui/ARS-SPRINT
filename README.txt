@@ -1,28 +1,27 @@
-ARS SPRINT 5.2 — VERSIÓN FINAL DE PRUEBA
+ARS SPRINT 6.1
+Aplicación web local para evaluación de sprint 5–40 m.
 
-Herramienta local de evaluación de sprint lineal para iPad/Safari.
+Archivos:
+- index.html
+- styles.css
+- app.js
+- manifest.json
 
-PRUEBAS
-5 m, 10 m, 20 m, 30 m, 40 m y distancia personalizada.
+Uso:
+1. Abrir index.html o publicar en GitHub Pages.
+2. Crear deportista.
+3. Seleccionar prueba 5/10/20/30/40 m.
+4. Seleccionar vídeo local.
+5. Declarar el FPS real del vídeo cuando sea conocido.
+6. Iniciar serie, marcar inicio y final y pasar al siguiente intento.
+7. Finalizar serie para guardar los intentos.
+8. Consultar Historial y Ficha/PDF.
 
-PRECISIÓN
-- El tiempo se registra desde la línea temporal del vídeo.
-- Avance/retroceso por frame requiere conocer el FPS de la grabación.
-- El FPS no se inventa: si no se conoce, se muestra como no verificado.
-- Cuando el FPS es declarado, se muestra la resolución nominal por frame y una incertidumbre conservadora de lectura.
-- requestVideoFrameCallback se usa cuando el navegador lo soporta para observar metadatos del frame presentado.
+Importante: el sistema no transforma los decimales en precisión científica. La resolución temporal depende del vídeo y del criterio de marcaje. Para validación de alto nivel se recomienda comparar contra fotocélulas u otro sistema de referencia.
 
-IMPORTANTE
-Un navegador no convierte automáticamente un vídeo en una medición de fotocélula. La exactitud final depende de la grabación, FPS, estabilidad de cámara, protocolo, criterio de inicio/final y validación externa.
 
-DATOS
-- localStorage para datos de uso cotidiano.
-- Respaldo JSON para conservar/trasladar la base.
-- Exportación CSV.
-- Ficha imprimible/PDF.
-
-IA
-Motor inteligente local: comparación histórica, consistencia de serie, velocidad y control de calidad. No se presenta como visión artificial avanzada. La visión automática del atleta requiere un modelo de computer vision validado.
-
-SEGURIDAD
-No colocar claves API privadas en GitHub Pages. Si se incorpora IA externa, usar un backend seguro.
+CONTROL DE CALIDAD
+- El indicador de calidad es una ayuda de captura y NO representa validación científica ni porcentaje de exactitud.
+- El FPS debe declararse según la grabación real; no se presupone 30 fps.
+- La resolución temporal nominal es 1000/FPS ms por frame.
+- Para máxima validez, comparar periódicamente contra un sistema de referencia (p. ej., fotocélulas) bajo un protocolo estandarizado.
