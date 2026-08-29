@@ -4,7 +4,7 @@ Evolución profesional para evaluación de sprint 5, 10 y 20 m.
 
 NOVEDADES
 - Asistente de estandarización de grabación.
-- Puertas virtuales asistidas de 5, 10 y 20 m.
+- Puertas virtuales asistidas de 5, 10, 20, 30 y .
 - Splits y velocidad media por tramo.
 - Velocidad máxima estimada a partir de los tramos registrados.
 - PB y comparación con el mejor registro histórico.
