@@ -1,4 +1,4 @@
-ARS SPRINT 6.1
+ARS SPRINT 6.2
 Aplicación web local para evaluación de sprint 5–40 m.
 
 Archivos:

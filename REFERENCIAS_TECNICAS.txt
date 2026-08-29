@@ -1,4 +1,4 @@
-BASE TÉCNICA ARS SPRINT 6.1
+BASE TÉCNICA ARS SPRINT 6.2
 
 La arquitectura se diseñó considerando literatura sobre confiabilidad y validez de medición de sprint:
 
