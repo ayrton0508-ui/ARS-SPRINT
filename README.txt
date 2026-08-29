@@ -1,10 +1,10 @@
 ARS SPRINT 10.0 SMART SPRINT
 
-Evolución profesional para evaluación de sprint 5–20 m.
+Evolución profesional para evaluación de sprint 5, 10 y 20 m.
 
 NOVEDADES
 - Asistente de estandarización de grabación.
-- Puertas virtuales asistidas de 5, 10, 20, 30 y 40 m.
+- Puertas virtuales asistidas de 5, 10 y 20 m.
 - Splits y velocidad media por tramo.
 - Velocidad máxima estimada a partir de los tramos registrados.
 - PB y comparación con el mejor registro histórico.
