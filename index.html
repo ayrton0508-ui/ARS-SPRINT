@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>ARS SPRINT 10.0 SMART VALIDATION 8.2</title>
+<title>ARS SPRINT 10.0 SMART SPRINT</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header class="topbar">
-  <div><div class="brand">ARS <span>SPRINT</span> <em>8.2</em></div><div class="subtitle">Evaluación profesional de sprint · 5–20 m · vídeo, precisión temporal, historial e informe</div></div>
+  <div><div class="brand">ARS <span>SPRINT</span> <em>10.0</em></div><div class="subtitle">Evaluación profesional de sprint · 5, 10 y 20 m · vídeo, precisión temporal, historial e informe</div></div>
   <div class="top-actions"><button id="backupBtn" class="ghost">⬇ Respaldo</button><label class="ghost file-btn">⬆ Restaurar<input id="restoreInput" type="file" accept="application/json"></label></div>
 </header>
 <nav class="tabs" aria-label="Secciones">
@@ -69,7 +69,7 @@
 
   <article class="card gates-card">
     <div class="section-head"><div><span class="eyebrow">04</span><h2>🚦 Puertas virtuales y perfil de aceleración</h2></div><span class="pill">ASISTIDO</span></div>
-    <p class="status">En una grabación de 5–20 m puedes registrar los cruces disponibles. ARS SPRINT calcula splits y velocidad media por tramo. La velocidad máxima es una <b>estimación</b> y no reemplaza fotocélulas.</p>
+    <p class="status">En una grabación de 5, 10 y 20 m puedes registrar los cruces disponibles. ARS SPRINT calcula splits y velocidad media por tramo. La velocidad máxima es una <b>estimación</b> y no reemplaza fotocélulas.</p>
     <div class="gate-grid">
       <div class="gate-card"><b>5 m</b><span id="gate5Readout">—</span><button data-gate="5" class="secondary gateBtn">Registrar cruce</button></div>
       <div class="gate-card"><b>10 m</b><span id="gate10Readout">—</span><button data-gate="10" class="secondary gateBtn">Registrar cruce</button></div>
@@ -109,7 +109,7 @@
     <div class="grid three"><label>Deportista<select id="dashAthlete"></select></label><label>Distancia<select id="dashDistance"><option value="5">5 m</option><option value="10">10 m</option><option value="20">20 m</option></select></label><div class="status" id="dashSummary">Selecciona un deportista.</div></div>
     <div class="dashboard-kpis"><div class="result-box"><span>Mejor marca</span><strong id="dashBest">—</strong><small>s</small></div><div class="result-box"><span>Velocidad media</span><strong id="dashSpeed">—</strong><small>km/h</small></div><div class="result-box"><span>PB %</span><strong id="dashPb">—</strong><small>referencia</small></div><div class="result-box"><span>Intentos</span><strong id="dashCount">0</strong><small>registros</small></div></div>
     <div class="chart-card"><div class="section-head"><h3>Evolución de la mejor marca</h3><span class="pill">TIEMPO</span></div><canvas id="trendCanvas" height="260"></canvas><div id="trendEmpty" class="status">Aún no hay suficientes registros para mostrar una tendencia.</div></div>
-    <div class="chart-card"><div class="section-head"><h3>Perfil de velocidad por tramos</h3><span class="pill">5–20 m</span></div><canvas id="splitCanvas" height="260"></canvas><div id="splitEmpty" class="status">Registra puertas virtuales en una prueba para visualizar el perfil.</div></div>
+    <div class="chart-card"><div class="section-head"><h3>Perfil de velocidad por tramos</h3><span class="pill">5, 10 y 20 m</span></div><canvas id="splitCanvas" height="260"></canvas><div id="splitEmpty" class="status">Registra puertas virtuales en una prueba para visualizar el perfil.</div></div>
   </article>
   <article class="card"><div class="section-head"><div><span class="eyebrow">EQUIPO</span><h2>Ranking</h2></div><span class="pill">MEJOR MARCA</span></div><div class="grid two"><select id="rankDistance"><option value="5">5 m</option><option value="10">10 m</option><option value="20">20 m</option></select><select id="rankMetric"><option value="time">Mejor tiempo</option><option value="speed">Velocidad media</option></select></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Deportista</th><th>Resultado</th><th>Registros</th></tr></thead><tbody id="rankBody"></tbody></table></div></article>
 </section>
@@ -123,7 +123,7 @@
 <div class="audit-box"><span>20 m</span><b id="audit20">Pendiente</b><small id="audit20meta">—</small></div>
 </div>
 <div class="status"><b>Regla de guardado:</b> una propuesta automática nunca se considera validada por sí sola. El resultado puede guardarse como <b>manual</b>, <b>corregido</b> o <b>validado</b>, conservando el método y el frame utilizado.</div>
-</article></section><section id="method" class="page"><article class="card"><div class="section-head"><div><span class="eyebrow">METODOLOGÍA</span><h2>Protocolo de medición</h2></div><span class="pill">ARS SPRINT 10.0 SMART VALIDATION 8.2</span></div><div class="method-grid"><div><h3>1. Estandarización</h3><p>Conservar distancia, protocolo de salida, superficie, cámara y condiciones entre sesiones. Registrar estos campos con cada evaluación.</p></div><div><h3>2. Vídeo</h3><p>Preferir cámara lateral, plano estable, línea de salida y llegada visibles y la mayor frecuencia de cuadros disponible. El FPS declarado determina la resolución temporal nominal.</p></div><div><h3>3. Marcaje</h3><p>Inicio: primer apoyo definido por el protocolo. Final: instante de cruce de la línea de llegada por el segmento corporal definido. Mantener el mismo criterio entre sesiones.</p></div><div><h3>4. Interpretación</h3><p>No confundir más decimales con mayor exactitud. El software informa resolución temporal, calidad y consistencia; no inventa una precisión que el vídeo no permite.</p></div></div><div class="reference-box"><h3>Base científica incorporada</h3><ul><li>Los tiempos de sprint cortos presentan errores relevantes según el método y la distancia.</li><li>La estandarización del inicio es crítica para comparar 5–10 m.</li><li>Las pruebas de 5–20 m son útiles para monitorizar aceleración; 0–10 y 0–20 m tienen mejor utilidad para detectar cambios que algunos splits intermedios, por lo que el software informa el método y no declara exactitud científica.</li><li>Para máxima precisión práctica, los sistemas de fotocélulas siguen siendo un criterio de referencia; el vídeo es una alternativa de bajo coste que debe validarse.</li></ul></div></article></section>
+</article></section><section id="method" class="page"><article class="card"><div class="section-head"><div><span class="eyebrow">METODOLOGÍA</span><h2>Protocolo de medición</h2></div><span class="pill">ARS SPRINT 10.0 SMART SPRINT</span></div><div class="method-grid"><div><h3>1. Estandarización</h3><p>Conservar distancia, protocolo de salida, superficie, cámara y condiciones entre sesiones. Registrar estos campos con cada evaluación.</p></div><div><h3>2. Vídeo</h3><p>Preferir cámara lateral, plano estable, línea de salida y llegada visibles y la mayor frecuencia de cuadros disponible. El FPS declarado determina la resolución temporal nominal.</p></div><div><h3>3. Marcaje</h3><p>Inicio: primer apoyo definido por el protocolo. Final: instante de cruce de la línea de llegada por el segmento corporal definido. Mantener el mismo criterio entre sesiones.</p></div><div><h3>4. Interpretación</h3><p>No confundir más decimales con mayor exactitud. El software informa resolución temporal, calidad y consistencia; no inventa una precisión que el vídeo no permite.</p></div></div><div class="reference-box"><h3>Base científica incorporada</h3><ul><li>Los tiempos de sprint cortos presentan errores relevantes según el método y la distancia.</li><li>La estandarización del inicio es crítica para comparar 5–10 m.</li><li>Las pruebas de 5, 10 y 20 m son útiles para monitorizar aceleración; 0–10 y 0–20 m tienen mejor utilidad para detectar cambios que algunos splits intermedios, por lo que el software informa el método y no declara exactitud científica.</li><li>Para máxima precisión práctica, los sistemas de fotocélulas siguen siendo un criterio de referencia; el vídeo es una alternativa de bajo coste que debe validarse.</li></ul></div></article></section>
 <section id="vision" class="page">
   <article class="card">
     <div class="section-head"><div><span class="eyebrow">SMART VISION · ASISTIDA</span><h2>🧠 Detección asistida de cruces</h2></div><span id="visionStatus" class="pill">NO CALIBRADA</span></div>
