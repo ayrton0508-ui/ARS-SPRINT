@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#111" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<title>ARS SPRINT 10.0 — V16 UNIFIED LIVE ENGINE</title>
+<link href="manifest.json" rel="manifest"/>
+<link href="styles.css" rel="stylesheet"/>
+<style>.validation-internal{display:none!important}</style></head>
+<body>
+<header class="topbar">
+<div><div class="brand">ARS <span>SPRINT</span> <em>10.0</em></div><div class="subtitle">Un solo motor: cámara en vivo · IA corporal · cronometraje · Photo Finish · historial · ficha</div></div>
+<div class="top-actions"><button class="ghost" id="backupBtn">⬇ Respaldo</button><label class="ghost file-btn">⬆ Restaurar<input accept="application/json" id="restoreInput" type="file"/></label></div>
+</header>
+<nav aria-label="Secciones" class="tabs">
+<button class="tab active" data-tab="evaluation">🏃 Evaluación</button>
+<button class="tab" data-tab="dashboard">📈 Dashboard</button>
+<button class="tab" data-tab="athletes">👥 Deportistas</button>
+<button class="tab" data-tab="history">📊 Historial</button>
+<button class="tab" data-tab="profile">📄 Ficha / PDF</button>
+<button class="tab" data-tab="smartcapture">🎥 Captura</button><button class="tab" data-tab="vision">🧠 Visión asistida</button><button class="tab" data-tab="method">🔬 Método</button>
+</nav>
+<main>
+<section class="page active" id="evaluation">
+<article class="card hero-card">
+<div class="section-head"><div><span class="eyebrow">PROTOCOLO</span><h2>Evaluación de sprint</h2></div><span class="pill yellow" id="testBadge">LISTO</span></div>
+<div class="grid four">
+<label>Deportista<select id="athleteSelect"></select></label>
+<label>Prueba<select id="distanceSelect"><option value="5">01 · 5 m</option><option value="10">02 · 10 m</option><option value="20">03 · 20 m</option></select></label>
+<label>Salida<select id="startProtocol"><option value="static">Estática / 2 puntos</option><option value="flying">Lanzada</option></select></label>
+<label>Intentos<select id="seriesCount"><option value="1">1</option><option value="2">2</option><option selected="" value="3">3</option><option value="4">4</option><option value="5">5</option></select></label>
+</div>
+<div class="grid four">
+<label>Superficie<input id="surface" placeholder="Césped sintético"/></label>
+<label>Condición<input id="condition" placeholder="Seco · viento leve"/></label>
+<label>FPS de vídeo<select id="fpsInput"><option selected="" value="unknown">No verificado</option><option>24</option><option>25</option><option>50</option><option>60</option><option>100</option><option>120</option><option>240</option><option value="custom">Personalizado</option></select></label>
+<label class="hidden" id="customFpsWrap">FPS personalizado<input id="customFps" max="1000" min="1" placeholder="Ej. 120" step="0.01" type="number"/></label>
+</div>
+<div class="protocol-strip"><b>Orden de pruebas:</b><span>5 m</span><span>10 m</span><span>20 m</span><small>La app conserva cada intento y cada sesión por separado.</small></div>
+<div class="setup-assistant"><div><b>🎥 Asistente de grabación</b><span id="setupScore">Preparación pendiente</span></div><div class="setup-checks"><label><input id="setupLateral" type="checkbox"/> Cámara lateral</label><label><input id="setupLevel" type="checkbox"/> Cámara nivelada</label><label><input id="setupFullTrack" type="checkbox"/> Carrera completa visible</label><label><input id="setupStable" type="checkbox"/> Teléfono estable</label><label><input id="setupFpsKnown" type="checkbox"/> FPS conocido</label></div><small>Checklist de control. No certifica exactitud científica; ayuda a estandarizar la captura.</small></div>
+</article>
+<article class="card live-card">
+<div class="section-head"><div><span class="eyebrow">LIVE ENGINE</span><h2>📹 Cámara en tiempo real</h2></div><span class="pill" id="liveStatus">CÁMARA APAGADA</span></div>
+<div class="live-stage"><video autoplay="" id="liveVideo" muted="" playsinline=""></video><canvas id="liveOverlay"></canvas><div class="live-crosshair start-line"><span>INICIO</span></div><div class="live-crosshair finish-line"><span id="liveFinishLabel">FINAL</span></div></div>
+<div class="smart-calibration" id="smartCalibration"><div class="smart-cal-head"><b>📏 Asistente de calibración 5 / 10 / 20 m</b><span id="calibrationState">Pendiente</span></div><div class="cal-grid"><div><span>Objetivo</span><strong id="calTarget">—</strong></div><div><span>Referencia</span><strong>Marcador físico</strong></div><div><span>Estado</span><strong id="calQuality">No calibrado</strong></div></div><div class="cal-guide" id="calGuide">Selecciona 5, 10 o 20 m. Con la cámara activa, coloca el marcador de referencia en la zona indicada y sigue las instrucciones.</div><div class="cal-actions"><button class="secondary" id="calibrateBtn" disabled>📏 Calibrar con cámara</button><button class="ghost" id="saveTrackCalibration" disabled>💾 Guardar pista</button></div><small>La calibración asistida usa una referencia física visible. Es una guía de montaje y no sustituye una cinta métrica ni fotocélulas para certificación.</small></div><div class="live-mode-note"><b>Flujo único:</b> selecciona deportista + distancia + cámara. La distancia física debe estar marcada en pista exactamente a 5.00, 10.00 o 20.00 m. La app verifica encuadre, FPS y cuerpo antes de medir.</div><div class="live-controls"><label class="camera-choice">Cámara<select id="cameraFacing"><option value="environment">🔙 Trasera · recomendada</option><option value="user">🤳 Frontal · modo individual</option></select></label>
+<button class="primary" id="startCamera">📹 Iniciar cámara y detectar</button><button class="dark" disabled="" id="armLive">⏱️ Preparar medición</button><button class="secondary" disabled="" id="stopCamera">⏹ Cerrar cámara</button>
+</div>
+<div class="live-evidence"><div class="evidence-head"><b>📸 Evidencia de llegada</b><span id="liveFinishStatus">Pendiente</span></div><canvas id="liveFinishCanvas" aria-label="Photo Finish en vivo"></canvas><div class="status" id="liveFinishMeta">La evidencia se genera automáticamente al detectar FINAL.</div></div><div class="live-kpis"><div><span>FPS cámara</span><b id="liveFps">—</b></div><div><span>FPS observado</span><b id="liveObservedFps">—</b></div><div><span>Cuerpo</span><b id="liveBodyState">No detectado</b></div><div><span>Estado</span><b id="liveMeasureState">Listo</b></div></div>
+<div class="status" id="liveInstruction">Selecciona al deportista y la distancia. Abre la cámara, coloca al atleta detrás de INICIO y pulsa “Armar medición”.</div>
+<div class="live-calibration"><b>Calibración de protocolo</b><span id="liveCalibrationText">Selecciona 5, 10 o 20 m y coloca físicamente las marcas a esa distancia exacta. Luego ajusta las líneas INICIO/FINAL sobre la imagen. La app no inventa la distancia: la toma del protocolo físico seleccionado.</span></div><div class="live-athlete-chip" id="liveAthleteChip">Deportista: —</div>
+</article><div class="workflow-strip"><span class="workflow-step active">1. CÁMARA</span><span>→</span><span>2. CUERPO</span><span>→</span><span>3. INICIO</span><span>→</span><span>4. FINAL</span><span>→</span><span>5. RESULTADO</span><span>→</span><span>6. EVIDENCIA</span></div><details class="tools-drawer"><summary>🛠️ Herramientas avanzadas y revisión (opcional)</summary><div class="drawer-intro">Vídeo, marcaje manual, puertas, splits, Photo Finish, visión y auditoría usan el mismo registro. Para una carrera en vivo normal no necesitas abrirlos.</div><article class="card">
+<div class="section-head"><div><span class="eyebrow">01</span><h2>Serie automática</h2></div><span class="pill">CONTROLADA</span></div><span class="pill">CONTROLADA</span>
+<div class="button-row"><button class="primary" id="startSeries">▶ Iniciar serie</button><button class="dark" disabled="" id="nextAttempt">Siguiente intento</button><button class="secondary" disabled="" id="finishSeries">✓ Finalizar serie</button><button class="danger" disabled="" id="cancelSeries">Cancelar</button></div>
+<div class="status" id="seriesStatus">Selecciona deportista, prueba y vídeo. Después inicia la serie.</div>
+<div class="series-progress"><div id="seriesProgressBar"></div></div>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>Tiempo</th><th>m/s</th><th>km/h</th><th>Calidad</th><th>Estado</th></tr></thead><tbody id="attemptBody"></tbody></table></div>
+</article><article class="card video-card">
+<div class="section-head"><div><span class="eyebrow">02</span><h2>Vídeo y control cuadro a cuadro</h2></div><span class="pill" id="videoStatusPill">SIN VÍDEO</span></div>
+<label class="upload-zone">🎥 Seleccionar vídeo desde Fotos o Archivos<input accept="video/*" id="videoInput" type="file"/></label>
+<div class="video-stage"><video controls="" id="video" playsinline="" preload="metadata"></video><canvas aria-label="Superposición de seguimiento corporal" id="trackingOverlay"></canvas></div>
+<div class="tracking-controls"><button class="secondary" id="loadBodyAI">🧍 Detectar cuerpo</button><button class="primary" id="autoMeasure">⚡ Medir automáticamente</button><button class="dark" id="photoFinishBtn">📸 Photo Finish</button><span class="status-inline" id="bodyStatus">Cuerpo: no detectado · Líneas: inicio/final listas</span></div>
+<div class="video-meta"><span id="videoMeta">Sin vídeo cargado.</span><span id="frameClock">0.000 s · frame —</span></div>
+<div class="transport"><button class="secondary" id="back10">◀ 10</button><button class="secondary" id="back1">◀ 1</button><button class="dark" id="playPause">▶ Reproducir</button><button class="secondary" id="forward1">1 ▶</button><button class="secondary" id="forward10">10 ▶</button><label>Velocidad<select id="playbackRate"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option selected="" value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>
+<div class="grid four info-grid"><div class="info-box"><span>Tiempo reproducido</span><b id="currentTime">0.000 s</b></div><div class="info-box"><span>FPS declarado</span><b id="sourceFps">No verificado</b></div><div class="info-box"><span>Frame estimado</span><b id="frameNumber">0</b></div><div class="info-box"><span>Resolución</span><b id="resolution">—</b></div></div>
+<div class="precision-note"><b>Modo de precisión</b><p id="precisionNote">Sin FPS verificado, no se asigna una precisión de frame. Declara el FPS real del vídeo para habilitar el control cuadro a cuadro.</p></div>
+</article><article class="card marking-card">
+<div class="section-head"><div><span class="eyebrow">03</span><h2>Marcaje de inicio y llegada</h2></div><span class="pill yellow">MANUAL ASISTIDO</span></div>
+<div class="mark-grid"><div class="mark-panel start"><span>INICIO</span><strong id="startReadout">—</strong><small id="startFrameReadout">Frame —</small><button class="primary" id="markStart">▶ MARCAR INICIO</button></div><div class="mark-panel finish"><span>FINAL</span><strong id="finishReadout">—</strong><small id="finishFrameReadout">Frame —</small><button class="dark" id="markFinish">■ MARCAR FINAL</button></div></div>
+<div class="button-row"><button class="secondary" id="resetMarks">↻ Reiniciar marcas</button><button class="secondary" id="undoMark">↶ Deshacer última marca</button></div>
+<div class="status" id="markQuality">Las líneas de INICIO y FINAL aparecen sobre el vídeo. Puedes arrastrarlas para calibrar el encuadre y luego usar detección corporal automática.</div>
+</article><article class="card gates-card">
+<div class="section-head"><div><span class="eyebrow">04</span><h2>🚦 Puertas virtuales y perfil de aceleración</h2></div><span class="pill">ASISTIDO</span></div>
+<p class="status">En una grabación de 5, 10 y 20 m puedes registrar los cruces disponibles. ARS SPRINT calcula splits y velocidad media por tramo. La velocidad máxima es una <b>estimación</b> y no reemplaza fotocélulas.</p>
+<div class="gate-grid">
+<div class="gate-card"><b>5 m</b><span id="gate5Readout">—</span><button class="secondary gateBtn" data-gate="5">Registrar cruce</button></div>
+<div class="gate-card"><b>10 m</b><span id="gate10Readout">—</span><button class="secondary gateBtn" data-gate="10">Registrar cruce</button></div>
+<div class="gate-card"><b>20 m</b><span id="gate20Readout">—</span><button class="secondary gateBtn" data-gate="20">Registrar cruce</button></div>
+</div>
+<div class="split-table table-wrap"><table><thead><tr><th>Tramo</th><th>Tiempo acumulado</th><th>Tiempo del tramo</th><th>Velocidad tramo</th></tr></thead><tbody id="splitBody"><tr><td colspan="4">Registra dos o más puertas.</td></tr></tbody></table></div>
+<div class="result-grid"><div class="result-box"><span>Velocidad máxima estimada</span><strong id="peakVelocity">—</strong><small>km/h</small></div><div class="result-box"><span>Metro de Vmáx estimado</span><strong id="peakAt">—</strong><small>tramo</small></div><div class="result-box"><span>Mejor PB</span><strong id="pbValue">—</strong><small>distancia actual</small></div><div class="result-box"><span>Mejora vs PB</span><strong id="pbDelta">—</strong><small>%</small></div></div>
+<div class="button-row"><button class="secondary" id="clearGates">↻ Limpiar puertas</button></div>
+</article><article class="card split-card">
+<div class="section-head"><div><span class="eyebrow">04</span><h2>Desglose del sprint</h2></div><span class="pill">SPLITS</span></div>
+<div class="split-summary" id="splitSummary"><div class="status">Realiza una medición para generar los splits disponibles.</div></div>
+<div class="split-chart-wrap"><canvas height="220" id="speedChart"></canvas></div>
+<div class="status" id="peakVelocityBox">Velocidad máxima estimada: —</div>
+</article><article class="card ai-card">
+<div class="section-head"><div><span class="eyebrow">06</span><h2>🧠 Análisis inteligente</h2></div><span class="pill">MOTOR LOCAL</span></div>
+<div class="ai-box" id="aiAnalysis"><b>Esperando medición.</b><p>El motor comparará la marca con el historial del deportista, la serie actual y la calidad temporal disponible.</p></div>
+<div class="ai-grid"><div><span>Mejor histórica</span><b id="aiBest">—</b></div><div><span>Diferencia</span><b id="aiDelta">—</b></div><div><span>Consistencia</span><b id="aiCV">—</b></div><div><span>Interpretación</span><b id="aiLevel">—</b></div></div>
+</article></details>
+
+
+
+
+
+<article class="card result-card">
+<div class="section-head"><div><span class="eyebrow">05</span><h2>Resultado verificable</h2></div><span class="pill green">AUDITABLE</span></div>
+<div class="result-grid"><div class="result-box accent"><span>Tiempo</span><strong id="resultTime">—</strong><small>s</small></div><div class="result-box"><span>Velocidad media</span><strong id="resultMs">—</strong><small>m/s</small></div><div class="result-box"><span>Velocidad media</span><strong id="resultKmh">—</strong><small>km/h</small></div><div class="result-box"><span>Calidad de lectura</span><strong id="quality">Pendiente</strong><small id="qualityDetail">—</small></div></div>
+<div class="grid two"><div class="status" id="precisionReadout">Resolución temporal: —</div><div class="status" id="uncertaintyReadout">Incertidumbre nominal: —</div></div>
+<div class="qualitybar"><span id="qualityBar"></span></div><div class="status" id="validationNote">Marca inicio y final para calcular.</div>
+<button class="save-btn" disabled="" id="saveCurrent">💾 Guardar intento actual</button>
+<div class="result-helper">Este resultado se enlaza automáticamente con el deportista, historial, dashboard, ficha y evidencia Photo Finish.</div></article>
+
+<div class="precision-grid"><div><span>Resolución temporal</span><b id="temporalResolution">—</b><small>1 / FPS</small></div><div><span>Calidad de captura</span><b id="captureQuality">Pendiente</b><small id="captureQualityMeta">Completa el protocolo</small></div><div><span>Estado de medición</span><b id="measurementGuard">Pendiente</b><small id="measurementGuardMeta">—</small></div></div>
+</section>
+<section class="page" id="dashboard">
+<article class="card">
+<div class="section-head"><div><span class="eyebrow">ANÁLISIS DE RENDIMIENTO</span><h2>Dashboard de sprint</h2></div><span class="pill green">LOCAL</span></div>
+<div class="grid three"><label>Deportista<select id="dashAthlete"></select></label><label>Distancia<select id="dashDistance"><option value="5">5 m</option><option value="10">10 m</option><option value="20">20 m</option></select></label><div class="status" id="dashSummary">Selecciona un deportista.</div></div>
+<div class="dashboard-kpis"><div class="result-box"><span>Mejor marca</span><strong id="dashBest">—</strong><small>s</small></div><div class="result-box"><span>Velocidad media</span><strong id="dashSpeed">—</strong><small>km/h</small></div><div class="result-box"><span>PB %</span><strong id="dashPb">—</strong><small>referencia</small></div><div class="result-box"><span>Intentos</span><strong id="dashCount">0</strong><small>registros</small></div></div>
+<div class="chart-card"><div class="section-head"><h3>Evolución de la mejor marca</h3><span class="pill">TIEMPO</span></div><canvas height="260" id="trendCanvas"></canvas><div class="status" id="trendEmpty">Aún no hay suficientes registros para mostrar una tendencia.</div></div>
+<div class="chart-card"><div class="section-head"><h3>Perfil de velocidad por tramos</h3><span class="pill">5, 10 y 20 m</span></div><canvas height="260" id="splitCanvas"></canvas><div class="status" id="splitEmpty">Registra puertas virtuales en una prueba para visualizar el perfil.</div></div>
+</article>
+<article class="card"><div class="section-head"><div><span class="eyebrow">EQUIPO</span><h2>Ranking</h2></div><span class="pill">MEJOR MARCA</span></div><div class="grid two"><select id="rankDistance"><option value="5">5 m</option><option value="10">10 m</option><option value="20">20 m</option></select><select id="rankMetric"><option value="time">Mejor tiempo</option><option value="speed">Velocidad media</option></select></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Deportista</th><th>Resultado</th><th>Registros</th></tr></thead><tbody id="rankBody"></tbody></table></div></article>
+</section>
+<section class="page" id="athletes"><article class="card"><div class="section-head"><div><span class="eyebrow">BASE DE DATOS</span><h2>Deportistas</h2></div><button class="primary" id="newAthlete">＋ Nuevo deportista</button></div><div class="athlete-list" id="athleteList"></div></article></section>
+<section class="page" id="history"><article class="card"><div class="section-head"><div><span class="eyebrow">REGISTROS</span><h2>Historial completo</h2></div><div class="button-row compact"><button class="secondary" id="exportCsv">CSV</button><button class="danger" id="clearHistory">Borrar historial</button></div></div><div class="grid three"><input id="historySearch" placeholder="Buscar deportista…"/><select id="historyDistance"><option value="">Todas las pruebas</option><option value="5">01 · 5 m</option><option value="10">02 · 10 m</option><option value="20">03 · 20 m</option></select><select id="historyQuality"><option value="">Toda calidad</option><option>Alta</option><option>Media</option><option>Baja</option></select></div><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Deportista</th><th>Prueba</th><th>Intento</th><th>Tiempo</th><th>m/s</th><th>Calidad</th></tr></thead><tbody id="historyBody"></tbody></table></div></article></section>
+<section class="page" id="profile"><article class="card print-area"><div class="section-head"><div><span class="eyebrow">INFORME</span><h2>Ficha profesional</h2></div><button class="primary" id="printPdf">🖨 Imprimir / PDF</button></div><select id="profileSelect"></select><div class="profile" id="profileContent"></div></article></section>
+<section class="page" id="smartcapture"><article class="card"><div class="section-head"><div><span class="eyebrow">SMART CAPTURE</span><h2>🎥 Asistente de captura</h2></div><span class="pill" id="captureScorePill">PENDIENTE</span></div><div class="grid two"><div class="status"><b>Antes de grabar</b><ul><li id="checkVideo">Vídeo: pendiente</li><li id="checkResolution">Resolución: pendiente</li><li id="checkFps">FPS: pendiente</li><li id="checkDuration">Duración: pendiente</li><li id="checkStability">Estabilidad: confirmar manualmente</li></ul></div><div class="status"><b>Protocolo recomendado</b><p>Cámara lateral, horizontal, estable y nivelada; toda la distancia visible. La posición y la escala deben mantenerse entre sesiones.</p><label><input id="confirmStable" type="checkbox"/> Confirmo que la cámara permaneció estable durante el sprint</label></div></div><div class="button-row"><button class="primary" id="runCaptureCheck">🔎 Analizar vídeo</button><button class="secondary" id="openEvaluation">Ir a evaluación</button></div><article class="photo-finish-box"><div class="section-head"><div><span class="eyebrow">PHOTO FINISH</span><h3>📸 Llegada fotograma a fotograma</h3></div><span class="pill" id="photoFinishStatus">PENDIENTE</span></div><p class="status">Genera una imagen tipo “photo-finish” a partir de una columna de píxeles de la línea de llegada durante el intervalo seleccionado. Es evidencia visual de revisión; no es un sistema FAT certificado.</p><div class="grid three"><label>Ventana alrededor de llegada (s)<input id="photoFinishWindow" max="3" min="0.1" step="0.1" type="number" value="1.0"/></label><label>Ancho de columna (px)<input id="photoFinishSlice" max="12" min="1" step="1" type="number" value="2"/></label><div class="status" id="photoFinishMeta">Sin imagen.</div></div><div class="button-row"><button class="primary" id="photoFinishGenerate">Generar Photo Finish</button><button class="secondary" disabled="" id="photoFinishDownload">Guardar imagen</button></div><canvas class="photo-finish-canvas" id="photoFinishCanvas"></canvas></article><div class="ai-box" id="captureAdvice"><b>Esperando vídeo.</b><p>Este asistente analiza metadatos y condiciones de captura. No sustituye la revisión humana ni afirma detectar al atleta automáticamente.</p></div></article></section><section class="page validation-internal" id="validation"><article class="card"><div class="section-head"><div><span class="eyebrow">06</span><h2>✅ Validación y auditoría</h2></div><span class="pill" id="validationStatus">PENDIENTE</span></div><div class="grid three"><div class="status"><b>Propuesta automática</b><span id="autoAudit">—</span></div><div class="status"><b>Validación entrenador</b><span id="coachAudit">Pendiente</span></div><div class="status"><b>Resultado guardable</b><span id="finalAudit">Bloqueado hasta validar</span></div></div><div class="button-row"><button class="primary" id="acceptVision">✓ Aceptar propuesta</button><button class="secondary" id="rejectVision">↶ Revisión manual</button></div><div class="status" id="auditNote">La propuesta de visión es una ayuda de localización. La confianza no representa porcentaje de exactitud científica.</div><div class="audit-grid">
+<div class="audit-box"><span>5 m</span><b id="audit5">Pendiente</b><small id="audit5meta">—</small></div>
+<div class="audit-box"><span>10 m</span><b id="audit10">Pendiente</b><small id="audit10meta">—</small></div>
+<div class="audit-box"><span>20 m</span><b id="audit20">Pendiente</b><small id="audit20meta">—</small></div>
+</div>
+<div class="status"><b>Regla de guardado:</b> una propuesta automática nunca se considera validada por sí sola. El resultado puede guardarse como <b>manual</b>, <b>corregido</b> o <b>validado</b>, conservando el método y el frame utilizado.</div>
+</article></section><section class="page" id="method"><article class="card"><div class="section-head"><div><span class="eyebrow">METODOLOGÍA</span><h2>Protocolo de medición</h2></div><span class="pill">ARS SPRINT 10.0 SMART SPRINT</span></div><div class="method-grid"><div><h3>1. Estandarización</h3><p>Conservar distancia, protocolo de salida, superficie, cámara y condiciones entre sesiones. Registrar estos campos con cada evaluación.</p></div><div><h3>2. Vídeo</h3><p>Preferir cámara lateral, plano estable, línea de salida y llegada visibles y la mayor frecuencia de cuadros disponible. El FPS declarado determina la resolución temporal nominal.</p></div><div><h3>3. Marcaje</h3><p>Inicio: primer apoyo definido por el protocolo. Final: instante de cruce de la línea de llegada por el segmento corporal definido. Mantener el mismo criterio entre sesiones.</p></div><div><h3>4. Interpretación</h3><p>No confundir más decimales con mayor exactitud. El software informa resolución temporal, calidad y consistencia; no inventa una precisión que el vídeo no permite.</p></div></div><div class="reference-box"><h3>Base científica incorporada</h3><ul><li>Los tiempos de sprint cortos presentan errores relevantes según el método y la distancia.</li><li>La estandarización del inicio es crítica para comparar 5–10 m.</li><li>Las pruebas de 5, 10 y 20 m son útiles para monitorizar aceleración; 0–10 y 0–20 m tienen mejor utilidad para detectar cambios que algunos splits intermedios, por lo que el software informa el método y no declara exactitud científica.</li><li>Para máxima precisión práctica, los sistemas de fotocélulas siguen siendo un criterio de referencia; el vídeo es una alternativa de bajo coste que debe validarse.</li></ul></div></article></section>
+<section class="page" id="vision">
+<article class="card">
+<div class="section-head"><div><span class="eyebrow">SMART VISION · ASISTIDA</span><h2>🧠 Detección asistida de cruces</h2></div><span class="pill" id="visionStatus">NO CALIBRADA</span></div>
+<div class="status"><b>Qué hace:</b> analiza cambios de movimiento en bandas verticales del vídeo y propone un instante candidato de cruce de 5, 10 y 20 m. <b>No sustituye la validación del entrenador.</b> La propuesta queda marcada como automática/asistida y puedes corregirla cuadro a cuadro.</div>
+<div class="grid two">
+<div><canvas class="vision-canvas" height="360" id="visionCanvas"></canvas><div class="button-row"><button class="secondary" id="visionLoadFrame">📷 Cargar frame actual</button><button class="secondary" id="visionClear">↻ Limpiar calibración</button></div></div>
+<div class="status"><b>Calibración de puertas</b><p>Selecciona una puerta y toca su posición sobre la imagen. La cámara debe estar lateral y las líneas de distancia visibles.</p><div class="button-row"><button class="gateSelect primary" data-vgate="5">5 m</button><button class="gateSelect secondary" data-vgate="10">10 m</button><button class="gateSelect secondary" data-vgate="20">20 m</button></div><div class="vision-list" id="visionGateList"></div><button class="primary" id="visionAnalyze" style="width:100%;margin-top:10px">🔎 Proponer cruces</button></div>
+</div>
+</article>
+<article class="card"><div class="section-head"><div><span class="eyebrow">RESULTADO ASISTIDO</span><h2>Propuestas de detección</h2></div><span class="pill">REVISAR</span></div><div class="table-wrap"><table><thead><tr><th>Puerta</th><th>Tiempo propuesto</th><th>Confianza</th><th>Evidencia</th><th>Estado</th><th>Acción</th></tr></thead><tbody id="visionResults"><tr><td colspan="6">Calibra las puertas y analiza el vídeo.</td></tr></tbody></table></div><div class="status" id="visionNote">La confianza es un indicador del algoritmo de movimiento, no una probabilidad científica de exactitud.</div></article>
+</section>
+</main>
+<section class="panel" id="comparisonPanel">
+<h3>📊 Comparación de intentos</h3>
+<div class="form-grid">
+<label>Resultado A (s)<input id="compareA" min="0" placeholder="Ej. 3.120" step="0.001" type="number"/></label>
+<label>Resultado B (s)<input id="compareB" min="0" placeholder="Ej. 3.070" step="0.001" type="number"/></label>
+<label>Error típico del protocolo (s)<input id="compareTE" min="0" step="0.001" type="number" value="0.020"/></label>
+<label>Distancia<select id="compareDistance"><option value="5">5 m</option><option value="10">10 m</option><option selected="" value="20">20 m</option></select></label>
+</div>
+<div class="button-row"><button class="primary" id="compareRun" type="button">Analizar cambio</button></div>
+<div class="status" id="compareResult">Introduce dos resultados para estimar el cambio observado. El análisis no sustituye una validación científica del protocolo.</div>
+</section>
+<section class="panel" id="protocolPanel">
+<h3>📐 Protocolo y calibración</h3>
+<div class="form-grid">
+<label>Tipo de salida<select id="protocolStartType"><option>2 puntos</option><option>3 puntos</option><option>De pie</option><option>Otra</option></select></label>
+<label>Vista de cámara<select id="cameraProtocol"><option>Lateral</option><option>Oblicua</option><option>Frontal</option><option>Otra</option></select></label>
+<label>FPS real<input id="fpsProtocol" min="1" placeholder="Ej. 120" step="0.01" type="number"/></label>
+<label>Calibración<select id="calibrationProtocol"><option value="pendiente">Pendiente</option><option value="confirmada">Confirmada</option></select></label>
+</div>
+<div class="status" id="protocolWarning">El protocolo debe mantenerse constante entre sesiones para comparar resultados.</div>
+</section>
+<section class="panel" id="reliabilityPanel">
+<h3>🧪 Consistencia de la serie</h3>
+<div class="status">Introduce varios intentos de la misma prueba. ARS SPRINT calcula la dispersión de la serie; no la presenta como “precisión científica”.</div>
+<label>Intentos (segundos, separados por coma)
+<input id="reliabilityTrials" placeholder="Ej. 3.12, 3.09, 3.15, 3.11" type="text"/>
+</label>
+<div class="button-row"><button class="primary" id="reliabilityRun" type="button">Analizar consistencia</button></div>
+<div class="status" id="reliabilityResult">Pendiente.</div>
+</section>
+<section class="panel" id="agreementPanel">
+<h3>📐 Acuerdo entre métodos</h3>
+<div class="status">Compara mediciones emparejadas (por ejemplo, ARS SPRINT vs fotocélulas). Este módulo describe el acuerdo; no declara por sí solo validez científica.</div>
+<label>ARS SPRINT (s)
+<input id="agreementA" placeholder="3.120, 3.080, 3.150" type="text"/>
+</label>
+<label>Método de referencia (s)
+<input id="agreementB" placeholder="3.110, 3.070, 3.140" type="text"/>
+</label>
+<div class="button-row"><button class="primary" id="agreementRun" type="button">Analizar acuerdo</button></div>
+<div class="status" id="agreementResult">Pendiente.</div>
+</section>
+<section class="panel" id="athleteReportPanel">
+<h3>👤 Ficha integral del deportista</h3>
+<div class="form-grid">
+<label>Deportista<select id="reportAthlete"></select></label>
+<label>Prueba<select id="reportDistance"><option value="5">5 m</option><option value="10">10 m</option><option selected="" value="20">20 m</option></select></label>
+<label>Sesión desde<input id="reportFrom" type="date"/></label>
+<label>Sesión hasta<input id="reportTo" type="date"/></label>
+</div>
+<div class="button-row"><button class="primary" id="buildReport" type="button">Generar ficha</button><button id="printReport" type="button">🖨️ Imprimir / PDF</button></div>
+<div class="status" id="athleteReportResult">Selecciona un deportista y genera la ficha.</div>
+</section>
+<section class="panel" id="performanceProfilePanel">
+<h3>🧠 Perfil de rendimiento</h3>
+<div class="form-grid">
+<label>Deportista<select id="profileAthlete"></select></label>
+<label>Sesión de comparación<select id="profileSession"></select></label>
+</div>
+<div class="button-row"><button class="primary" id="buildProfile" type="button">Analizar perfil</button></div>
+<div class="status" id="performanceProfileResult">Selecciona un deportista para generar su perfil.</div>
+</section>
+<section class="panel" id="athleteInterpretationPanel">
+<h3>🧠 Interpretación del perfil</h3>
+<div class="status" id="athleteInterpretationResult">Genera primero el perfil de rendimiento.</div>
+</section>
+<section class="panel" id="frameRefinementPanel">
+<h3>🎞️ Refinamiento de eventos por ventana de frames</h3>
+<div class="form-grid">
+<label>Ventana alrededor del evento
+<select id="frameWindow"><option value="1">±1 frame</option><option selected="" value="2">±2 frames</option><option value="3">±3 frames</option><option value="5">±5 frames</option></select></label>
+<label>Criterio de selección
+<select id="frameCriterion"><option value="median">Mediana de candidatos</option><option value="first">Primer candidato validado</option></select></label>
+<label>Frames mínimos de confirmación
+<input id="frameConfirmMin" max="10" min="1" type="number" value="2"/></label>
+</div>
+<div class="status" id="frameRefinementStatus">La ventana reduce dependencia de un único frame; no sustituye la validación externa.</div>
+</section>
+<section class="panel" id="crossingInterpolationPanel">
+<h3>🏃 Interpolación del cruce del torso</h3>
+<div class="status">ARS SPRINT puede estimar el instante de cruce entre dos frames candidatos, usando la posición del torso respecto a la línea. Es el concepto clave que diferencia una lectura por frame de una estimación sub-frame.</div>
+<div class="form-grid">
+<label>Frame anterior<input id="crossPrevFrame" min="0" placeholder="120" step="1" type="number"/></label>
+<label>Posición torso anterior<input id="crossPrevPos" placeholder="-0.18" step="0.001" type="number"/></label>
+<label>Frame posterior<input id="crossNextFrame" min="1" placeholder="121" step="1" type="number"/></label>
+<label>Posición torso posterior<input id="crossNextPos" placeholder="0.12" step="0.001" type="number"/></label>
+<label>FPS<input id="crossFps" min="1" placeholder="240" step="0.01" type="number"/></label>
+</div>
+<div class="button-row"><button class="primary" id="crossInterpolateRun" type="button">Calcular cruce</button></div>
+<div class="status" id="crossInterpolationResult">Pendiente.</div>
+</section>
+<section class="panel" id="eventEvidencePanel">
+<h3>🎯 Evidencia del evento</h3>
+<div class="status">Inspirado en el principio de Photo Finish: no se acepta un único frame como verdad absoluta. Se revisan los frames que rodean el cruce y se informa cómo se obtuvo el instante.</div>
+<div class="form-grid">
+<label>Frame antes<input id="evidencePrevFrame" min="0" placeholder="120" step="1" type="number"/></label>
+<label>Posición antes<input id="evidencePrevPos" placeholder="-0.18" step="0.001" type="number"/></label>
+<label>Frame después<input id="evidenceNextFrame" min="1" placeholder="121" step="1" type="number"/></label>
+<label>Posición después<input id="evidenceNextPos" placeholder="0.12" step="0.001" type="number"/></label>
+<label>FPS<input id="evidenceFps" min="1" placeholder="240" step="0.01" type="number"/></label>
+<label>Calidad visual<select id="evidenceVisualQuality"><option value="alta">Alta</option><option selected="" value="media">Media</option><option value="baja">Baja</option></select></label>
+</div>
+<div class="button-row"><button class="primary" id="evidenceAnalyze" type="button">Analizar evidencia</button></div>
+<div class="status" id="eventEvidenceResult">Pendiente.</div>
+</section>
+<section class="panel" id="autoBracketPanel">
+<h3>🤖 Bracket automático del evento</h3>
+<div class="status">El análisis busca el cambio de movimiento alrededor de cada puerta y conserva los dos frames que rodean el evento. El tiempo se interpola entre ellos. Esto es asistencia por visión; no se presenta como detección anatómica del torso.</div>
+<div class="form-grid">
+<label>Umbral relativo<select id="bracketThreshold"><option value="1.2">1.2× línea base</option><option selected="" value="1.5">1.5× línea base</option><option value="2">2× línea base</option></select></label>
+<label>Ventana de búsqueda<select id="bracketWindow"><option value="0.25">±0.25 s</option><option selected="" value="0.50">±0.50 s</option><option value="1">±1.00 s</option></select></label>
+</div>
+<div class="status" id="autoBracketResult">Pendiente de analizar el vídeo.</div>
+</section>
+<section class="panel" id="multiCuePanel">
+<h3>🧠 Confirmación multicriterio del evento</h3>
+<div class="status">Combina tres evidencias: cambio de imagen, proximidad a la puerta y continuidad temporal. La salida es un candidato de medición y siempre conserva la evidencia para revisión.</div>
+<div class="form-grid">
+<label>Concordancia mínima<select id="cueAgreement"><option value="2">2 de 3</option><option selected="" value="3">3 de 3</option></select></label>
+<label>Máxima separación<select id="cueGap"><option value="1">1 frame</option><option selected="" value="2">2 frames</option><option value="3">3 frames</option></select></label>
+</div>
+<div class="status" id="multiCueResult">Pendiente.</div>
+</section>
+<section class="panel" id="torsoProxyPanel">
+<h3>🧍 Centro corporal visual</h3>
+<div class="status">El algoritmo estima el centro horizontal de la masa en movimiento alrededor de cada puerta. Es un <b>proxy visual</b>, no una detección anatómica de torso; se utiliza para mejorar el bracket del evento y debe revisarse.</div>
+<div class="form-grid">
+<label>Anchura de búsqueda<select id="centroidBand"><option value="0.05">±5%</option><option selected="" value="0.08">±8%</option><option value="0.12">±12%</option></select></label>
+<label>Señal mínima<select id="centroidMinSignal"><option value="2">Baja</option><option selected="" value="5">Media</option><option value="10">Alta</option></select></label>
+</div>
+<div class="status" id="torsoProxyResult">Pendiente de analizar el vídeo.</div>
+</section>
+<section class="panel" id="poseAiPanel">
+<h3>🤖 IA de pose — torso real</h3>
+<div class="status">Usa un modelo de estimación de pose para localizar hombros y caderas y calcular un centro de torso. El resultado se usa como evidencia adicional; si la pose no es visible, ARS SPRINT conserva el método visual anterior.</div>
+<div class="button-row"><button class="secondary" id="poseAiLoad" type="button">Cargar IA de pose</button><button class="primary" id="poseAiAnalyze" type="button">Analizar 5/10/20 m</button></div>
+<div class="status" id="poseAiStatus">IA no cargada.</div>
+<div class="status" id="poseAiResult">Pendiente.</div>
+</section>
+<section class="panel" id="eventReviewPanel">
+<h3>🔎 Revisión visual del evento</h3>
+<div class="status">Selecciona una puerta y revisa automáticamente los frames que rodean el instante estimado. La revisión conserva la evidencia usada por ARS SPRINT.</div>
+<div class="form-grid">
+<label>Puerta<select id="reviewGate"><option value="5">5 m</option><option selected="" value="10">10 m</option><option value="20">20 m</option></select></label>
+<label>Ventana<select id="reviewWindow"><option value="2">±2 frames</option><option selected="" value="4">±4 frames</option><option value="6">±6 frames</option></select></label>
+</div>
+<div class="button-row"><button class="primary" id="reviewEventRun" type="button">Mostrar evidencia</button></div>
+<div class="status" id="reviewEventStatus">Pendiente.</div>
+<div class="event-frame-grid" id="reviewEventFrames"></div>
+</section>
+<section class="panel" id="finalDashboardPanel"><h3>🏁 ARS SPRINT 10.0 — Control final</h3><div class="status">Panel de cierre: verifica protocolo, calidad de captura, evidencia y estado de las tres distancias antes de guardar el resultado.</div><div class="final-kpis"><div><span>Protocolo</span><b id="finalProtocolState">Pendiente</b></div><div><span>Captura</span><b id="finalCaptureState">Pendiente</b></div><div><span>Evidencia</span><b id="finalEvidenceState">Pendiente</b></div><div><span>Resultado</span><b id="finalResultState">Pendiente</b></div></div><div class="status" id="finalChecklist">Ejecuta el análisis y revisa los eventos.</div></section><dialog id="athleteDialog"><form class="dialog-form" id="athleteForm"><h2>Nuevo deportista</h2><label>Nombre completo<input id="athleteName" required=""/></label><div class="grid two"><label>Fecha de nacimiento<input id="athleteDob" type="date"/></label><label>Sexo<select id="athleteSex"><option>Masculino</option><option>Femenino</option><option>Otro</option></select></label></div><div class="grid two"><label>Deporte<input id="athleteSport" placeholder="Fútbol"/></label><label>Categoría<input id="athleteCategory" placeholder="Sub-15"/></label></div><label>Observaciones<textarea id="athleteNotes" rows="3"></textarea></label><div class="button-row"><button class="secondary" id="cancelAthlete" type="button">Cancelar</button><button class="primary">Guardar deportista</button></div></form></dialog>
+<script src="app.js"></script>
+</body></html>
