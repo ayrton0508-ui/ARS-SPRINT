@@ -1,0 +1,51 @@
+ARS SPRINT 10.0 · V15 UNIFIED LIVE ENGINE — REFERENCIAS Y CRITERIOS
+
+Metric Sprint: referencia funcional para splits, puertas virtuales, velocidad máxima, perfiles de aceleración, PB, tendencias y flujo de equipo. ARS SPRINT implementa conceptos propios y no copia su código o interfaz.
+
+Criterios de captura: cámara lateral, estable, nivelada y con toda la carrera en encuadre. Registrar el FPS real. La resolución temporal nominal es 1000/FPS ms por frame.
+
+Limitación: la versión 8.2 usa puertas asistidas/manuales y trazabilidad de validación; cualquier visión artificial automática del atleta se considera propuesta y requiere validación específica.
+
+
+La detección automática de pose/cruce requiere un modelo de visión por computador validado; esta versión mantiene el marcaje asistido para no presentar una heurística como IA validada.
+
+
+CRITERIO DE SPLITS 7.3
+- 5 m: 0–5 m.
+- 10 m: 0–5 y 0–10 m.
+- 20 m: 0–5, 0–10 y 0–20 m.
+- Un split estimado proporcionalmente no debe presentarse como cruce real de una puerta.
+
+- Marco de validación: distinguir propuesta automática, validación humana y resultado final; la confianza del algoritmo no debe interpretarse como exactitud científica.
+
+- ARS SPRINT 10.0 añade trazabilidad por puerta: propuesta, validación del entrenador o marcaje manual.
+- La validación del software debe hacerse frente a un criterio de referencia; estudios de vídeo móvil han mostrado alta concordancia con fotocélulas para 10 y 20 m, pero con sesgo y límites de acuerdo propios del método.
+- Para 20 m, la literatura reciente reporta CV 0.52–1.36% para 0–20, 0–10 y 10–20 m con sistemas de puertas, y recomienda un umbral de cambio más conservador para 10–20 m.
+- El resultado guardado conserva el método de obtención para facilitar auditoría y futuras comparaciones con fotocélulas.
+
+- 8.2: migración automática de datos locales desde versiones anteriores para preservar historial.
+
+- 8.3: registra el protocolo de salida y condiciones de captura porque las diferencias de salida y del criterio de disparo pueden superar cambios pequeños de rendimiento en sprints cortos.
+
+- 8.5: el análisis de series se inspira en recomendaciones de fiabilidad (error típico, CV y cambio mínimo detectable); estos indicadores sirven para seguimiento y no demuestran por sí mismos la validez del software.
+
+- 8.6: el análisis de acuerdo entre métodos se expresa mediante diferencias emparejadas, sesgo medio y límites de acuerdo; no se interpreta como prueba automática de validez.
+
+- 9.1: se incorpora un control de calidad de captura basado en FPS registrado, vista de cámara, calibración y validación. La resolución temporal mostrada es 1/FPS y no se interpreta como error total de medición.
+- La evidencia disponible muestra que vídeo de smartphone puede presentar alta concordancia con fotocélulas, pero el sesgo depende del protocolo y del método de inicio/lectura; por ello ARS SPRINT reporta condiciones de captura en vez de afirmar exactitud absoluta.
+
+- 9.2: se incorpora una ventana configurable de frames y un criterio explícito de selección para reducir dependencia de un único frame candidato. La ventana no se presenta como validación ni como reducción garantizada del error.
+
+- 9.3: inspirado en el principio descrito por Photo Finish: detectar la posición del torso en los frames inmediatamente anterior y posterior al cruce y estimar el instante de cruce mediante interpolación lineal. Se implementa como módulo reproducible y no como afirmación de validez equivalente.
+
+- 9.4: se incorpora una capa de evidencia del evento inspirada en el enfoque de Photo Finish: usar los frames anterior/posterior al cruce, interpolar el instante y reportar las condiciones de captura. La puntuación interna no representa una probabilidad ni una validación externa.
+
+- 9.5: el análisis de visión ahora conserva un par de frames alrededor del evento y realiza interpolación temporal sobre una señal de cambio de imagen. Es asistencia por visión, no detección anatómica del torso; la validación final sigue siendo del entrenador.
+
+- 9.6: confirmación multicriterio del evento combinando cambio de imagen, proximidad a la puerta y continuidad temporal. No se presenta como detección anatómica ni como probabilidad de acierto.
+
+- 9.7: el análisis visual incorpora un centroide horizontal ponderado por cambio de luminancia en una banda alrededor de la puerta. Se utiliza como proxy de masa en movimiento para encontrar el cruce entre frames; no se denomina detección anatómica ni IA de torso.
+
+- 9.8: integración opcional de estimación de pose con MediaPipe Pose Landmarker. Se usa hombros (11,12) y caderas (23,24) para estimar el centro del torso y localizar el cruce por interpolación. La IA es una capa de evidencia adicional y no se declara validada contra Photo Finish/fotocélulas.
+
+- 9.9: revisión visual del evento. ARS SPRINT muestra los frames anterior, candidato y posterior alrededor del instante estimado para permitir auditoría humana del resultado.
