@@ -1,0 +1,17 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+const root=new URL('../',import.meta.url);const files=['index.html','styles.css','app.js','core.js','config.js','camera.js','vision.js','storage.js','manifest.json','sw.js','README.md','package.json'];
+for(const f of files)test(`file ${f} exists`,()=>assert.ok(fs.existsSync(new URL(f,root))));
+test('one camera and official distances',()=>{const h=fs.readFileSync(new URL('index.html',root),'utf8');assert.equal((h.match(/<video\b/g)||[]).length,1);for(const d of ['5 m','10 m','20 m'])assert.ok(h.includes(d));for(const x of ['5-0-5','5-10-5','30 m','40 m'])assert.ok(!h.includes(x))});
+test('no random simulation',()=>{for(const f of ['app.js','core.js','vision.js'])assert.ok(!fs.readFileSync(new URL(f,root),'utf8').includes('Math.random'))});
+test('real pose dependency present',()=>{const v=fs.readFileSync(new URL('vision.js',root),'utf8');assert.match(v,/PoseLandmarker/);assert.match(v,/MODEL_URL/)});
+test('automatic flow hooks',()=>{const a=fs.readFileSync(new URL('app.js',root),'utf8');for(const x of ['createPoseLandmarker','StartDetector','startRecorder','robustVelocity','peakVelocity','autoArm'])assert.ok(a.includes(x),x)});
+test('no visible manual arm button',()=>{const h=fs.readFileSync(new URL('index.html',root),'utf8');assert.ok(!h.includes('ARMAR SPRINT'))});
+test('service worker lists core modules',()=>{const s=fs.readFileSync(new URL('sw.js',root),'utf8');for(const f of ['camera.js','vision.js','storage.js','core.js'])assert.ok(s.includes(f))});
+
+test('critical DOM references are real',()=>{const h=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');const a=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');assert.ok(h.includes('id=\"directionSelect\"'));assert.ok(h.includes('id=\"resultScreen\"'));assert.ok(a.includes("show('result')"));assert.ok(!a.includes("$('direction').textContent"));});
+test('live distance HUD and result curve present',()=>{const h=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');for(const id of ['elapsed','targetReadout','s5','s10','s20','profileChart'])assert.ok(h.includes('id=\"'+id+'\"'),id)});
+test('no unsupported sprint distances',()=>{const all=['index.html','app.js','core.js','README.md'].map(f=>fs.readFileSync(new URL('../'+f,import.meta.url),'utf8')).join('\n');for(const x of ['30 m','40 m','5-0-5','5-10-5'])assert.ok(!all.includes(x),x)});
+
+test('all static app DOM references exist',()=>{const h=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');const ids=new Set([...h.matchAll(/\bid=\"([^\"]+)\"/g)].map(m=>m[1]));const a=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');const refs=[...a.matchAll(/\$\(\'([^\']+)\'\)/g)].map(m=>m[1]);const dynamic=new Set(['live-splits','playVideo']);const missing=[...new Set(refs)].filter(id=>!dynamic.has(id)&&!ids.has(id));assert.deepEqual(missing,[])});
+test('comparison and gate handles wired',()=>{const h=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');const a=fs.readFileSync(new URL('../app.js',import.meta.url),'utf8');assert.ok(h.includes('id="liveHud"'));assert.ok(h.includes('id="comparisonBody"'));assert.ok(a.includes('syncGateHandles'));assert.ok(a.includes('renderComparison'))});
+test('version consistency',()=>{const c=fs.readFileSync(new URL('../config.js',import.meta.url),'utf8');const r=fs.readFileSync(new URL('../README.md',import.meta.url),'utf8');assert.match(c,/PRO 46/);assert.match(r,/PRO 46/)});
