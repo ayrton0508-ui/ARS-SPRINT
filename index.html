@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070a0d"><meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json"><link rel="stylesheet" href="styles.css"><title>ARS SPRINT · PRO</title>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">ARS</span><span><b>SPRINT</b><small>PRO</small></span></div>
+  <div class="top-actions"><span class="session-pill" id="connectionBadge">LISTO</span><button id="athleteBtn" class="ghost">Atletas</button><button id="historyBtn" class="ghost">Historial</button><button id="videoBtn" class="ghost">Vídeos</button></div>
+</header>
+<main>
+<section id="setup" class="screen active">
+  <div class="hero compact">
+    <div><p class="eyebrow">SINGLE-CAMERA SPRINT TIMING</p><h1>ARS SPRINT</h1><p class="muted">Coloca la cámara. La IA hace el resto.</p></div>
+    <div class="quick-config">
+      <label>Atleta<select id="athleteSelect"></select></label>
+      <label>Distancia<select id="distanceSelect"><option value="5">5 m</option><option value="10">10 m</option><option value="20" selected>20 m</option></select></label>
+      <label>Intento<input id="attemptInput" type="number" min="1" value="1"></label>
+      <label>Dirección<select id="directionSelect"><option value="forward">→ Derecha</option><option value="reverse">← Izquierda</option></select></label>
+    </div>
+  </div>
+
+  <section class="measure-stage">
+    <div class="camera-shell main-camera" id="cameraShell">
+      <video id="video" autoplay muted playsinline></video>
+      <canvas id="overlay"></canvas>
+      <div class="hud-top"><span id="fpsBadge">— FPS</span><span id="hdBadge">HD</span></div>
+      <div id="bodyStatus" class="body-status">● IA corporal: esperando cámara</div>
+      <div id="tiltIndicator" class="camera-indicator">Nivel: —</div>
+      <div id="stableIndicator" class="camera-indicator stable">Estabilidad: —</div>
+      <div id="cameraMessage" class="camera-message">Activa la cámara para comenzar</div>
+      <div class="gate-help">Arrastra los gates sobre los conos · 0 / 5 / 10 / 20 m</div>
+      <div id="liveHud" class="live-hud">
+        <div class="live-state"><span id="runState">CONFIGURANDO</span><b id="liveTime">0.000</b></div>
+        <div class="live-splits"><div><span>5 m</span><b id="split5">—</b></div><div><span>10 m</span><b id="split10">—</b></div><div><span>20 m</span><b id="split20">—</b></div></div>
+      </div>
+      <span id="runHint" class="sr-only">—</span><span id="backSetup" class="sr-only">—</span>
+      <div class="camera-bottom-status"><span id="trackConfidence">Tracking: —</span><span id="frameRate">FPS: —</span><span id="recordStatus">● Vídeo en espera</span><span id="setupBtn" class="sr-only">—</span></div>
+      <button id="startCameraBtn" class="camera-cta">Activar cámara</button>
+    </div>
+
+    <div class="floating-tools">
+      <div class="tool-status"><span id="checkOrientation" class="check">○ Horizontal</span><span id="checkTilt" class="check">○ Nivel</span><span id="checkStable" class="check">○ Estable</span><span id="checkAthlete" class="check">○ Atleta</span></div>
+      <button id="flipBtn" class="tool-btn">↔ Dirección</button>
+      <button id="resetGatesBtn" class="tool-btn">↺ Gates</button>
+      <button id="calibrateBtn" class="tool-btn primary" disabled>Confirmar gates</button>
+      <span id="calibrationQuality" class="cal-badge">CALIBRACIÓN PENDIENTE</span><span id="calibrationStatus" class="sr-only">Pendiente</span>
+    </div>
+
+    <div class="ready-bar" id="readyPanel">
+      <div class="ready-icon">⌁</div><div><b id="readyTitle">Preparando medición</b><small id="readyText">Activa la cámara; la IA, nivelación y calibración se validan automáticamente.</small></div>
+      <button id="armBtn" class="arm-btn" disabled>ARMAR SPRINT</button>
+    </div>
+  </section>
+
+  <div class="micro-help"><span>1. Cámara lateral</span><span>2. Alinea gates con los conos</span><span>3. Confirma</span><span>4. El atleta corre sin tocar nada</span></div>
+</section>
+
+<section id="result" class="screen">
+  <div class="hero"><div><p class="eyebrow">RESULTADO</p><h1 id="resultTitle">Sprint completado</h1><p id="resultSubtitle" class="muted"></p></div><div class="step-pill">✓ GUARDADO</div></div>
+  <div class="result-grid"><div class="metric-card"><span>0–5 m</span><strong id="r5">—</strong></div><div class="metric-card"><span>0–10 m</span><strong id="r10">—</strong></div><div class="metric-card"><span>0–20 m</span><strong id="r20">—</strong></div><div class="metric-card emphasis"><span>VELOCIDAD MÁXIMA</span><strong id="rVmax">—</strong><small id="rVmaxAt">—</small></div></div>
+  <div class="card"><div class="section-head"><div><h2>Perfil de velocidad</h2><p>Trayectoria calibrada + timestamps reales.</p></div></div><canvas id="curve" height="240"></canvas></div>
+  <div class="card result-details"><div><div><span>Calidad</span><b id="rQuality">—</b></div><div><span>Frames válidos</span><b id="rFrames">—</b></div><div><span>Distancia</span><b id="rDistance">—</b></div><div><span>PB</span><b id="rPB">—</b></div><div><span>Vs PB</span><b id="rDelta">—</b></div><div><span>Anterior</span><b id="rPrev">—</b></div><div><span>Vs anterior</span><b id="rPrevDelta">—</b></div></div><div id="videoReview"></div></div>
+  <div class="actions"><button id="newSprintBtn" class="primary">Nuevo sprint</button><button id="historyBtn2" class="secondary">Ver historial</button></div>
+</section>
+
+<section id="history" class="screen"><div class="hero"><div><p class="eyebrow">HISTORIAL</p><h1>Resultados y PB</h1></div><div class="actions-inline"><button id="exportBtn" class="secondary">Exportar CSV</button><button id="clearHistory" class="secondary">Borrar</button></div></div><div class="card table-wrap"><table><thead><tr><th>Fecha</th><th>Atleta</th><th>Dist.</th><th>5 m</th><th>10 m</th><th>20 m</th><th>Vmax</th><th>Calidad</th></tr></thead><tbody id="historyBody"></tbody></table></div><div class="card"><h2>Mejores tiempos</h2><div id="leaderboard" class="mini-grid"></div></div><nav class="bottom-nav"><button id="setupBtn2">Medición</button><button id="athleteBtn2">Atletas</button><button id="videoBtn2">Vídeos</button></nav></section>
+<section id="athletes" class="screen"><div class="hero"><div><p class="eyebrow">ATLETAS</p><h1>Gestión de atletas</h1></div></div><div class="card grid2"><label>Nombre completo<input id="newAthleteName" placeholder="Nombre y apellido"></label><label>Categoría<input id="newAthleteCategory" placeholder="Sub-15 / Senior"></label><label>Equipo / grupo<input id="newAthleteTeam" placeholder="Equipo"></label><button id="addAthleteBtn" class="primary">Agregar atleta</button></div><div class="card table-wrap"><table><thead><tr><th>Atleta</th><th>Categoría</th><th>Equipo</th><th></th></tr></thead><tbody id="athleteRows"></tbody></table></div></section>
+<section id="videos" class="screen"><div class="hero"><div><p class="eyebrow">BIBLIOTECA</p><h1>Vídeos</h1></div></div><div class="card table-wrap"><table><thead><tr><th>Fecha</th><th>Atleta</th><th>Dist.</th><th></th></tr></thead><tbody id="videoRows"></tbody></table></div><div class="card" id="videoViewer"></div></section>
+</main>
+<script type="module" src="app.js"></script>
+</body></html>
