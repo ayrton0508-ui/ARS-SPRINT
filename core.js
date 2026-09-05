@@ -71,6 +71,31 @@ export function mapPxToMeters(x,gates,direction=1){
   return null;
 }
 
+export function gateLineXAtY(gateX,y){
+  const yy=Math.max(.48,Math.min(.98,Number(y)));
+  const r=(yy-.48)/.50;
+  return .5+(gateX-.5)*r;
+}
+
+export function crossedGate2D(prev,curr,gateX,direction=1){
+  if(!prev||!curr||!Number.isFinite(gateX)||!Number.isFinite(prev.x)||!Number.isFinite(curr.x))return false;
+  const pLine=gateLineXAtY(gateX,Number.isFinite(prev.y)?prev.y:.98);
+  const cLine=gateLineXAtY(gateX,Number.isFinite(curr.y)?curr.y:.98);
+  const ps=direction*(prev.x-pLine), cs=direction*(curr.x-cLine);
+  return ps<0&&cs>=0;
+}
+
+export function interpolateCross2D(prev,curr,gateX,direction=1){
+  if(!prev||!curr||!Number.isFinite(gateX))return null;
+  const py=Number.isFinite(prev.y)?prev.y:.98, cy=Number.isFinite(curr.y)?curr.y:.98;
+  const ps=direction*(prev.x-gateLineXAtY(gateX,py));
+  const cs=direction*(curr.x-gateLineXAtY(gateX,cy));
+  const den=cs-ps;
+  if(Math.abs(den)<1e-9)return null;
+  const r=Math.max(0,Math.min(1,-ps/den));
+  return prev.t+r*(curr.t-prev.t);
+}
+
 export function robustVelocity(samples,gates,direction=1,maxPhysical=12){
   const raw=[];
   for(let i=1;i<samples.length;i++){
